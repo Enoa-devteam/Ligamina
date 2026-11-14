@@ -83,6 +83,27 @@ class CampaignGateTests(unittest.TestCase):
         verdict = gate.evaluate(_report(10), rows, gate.DEFAULT_LIMITS)
         self.assertIn("call_signals_missing:1", verdict["reasons"])
 
+    def test_known_native_observation_failure_is_tolerated_and_listed_for_the_patch_run(self) -> None:
+        # 2026-11-14 b0028: surrogate-escaped plugin text made the Native protocol line raise, so both
+        # passed Native Workers reported a failed observation. Fixed on a separate branch; the run
+        # keeps its identity and affected jobs are rerun at the end under a corrected plan.
+        failed_native = _result(federated=_signals(silent=2), category="unknown")
+        failed_native["comparison"]["call_signals"]["native_first"] = None
+        failed_native["comparison"]["call_signals"]["native_second"] = None
+        failed_native["comparison"]["incomplete_sides"] = {
+            "native_first": "worker_observation_incomplete", "native_second": "worker_observation_incomplete",
+            "federated": "worker_observation_incomplete"}
+        rows = {f"u{i}": {"status": "passed", "result": _result()} for i in range(100)}
+        rows["u7"] = {"status": "unknown", "result": failed_native}
+        verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
+        self.assertEqual(verdict["status"], "passed", verdict["reasons"])
+        self.assertEqual(verdict["counts"]["native_observation_failed"], 1)
+        self.assertEqual(verdict["patch_candidates"], ["u7"])
+
+        rows["u8"] = {"status": "unknown", "result": failed_native}
+        verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
+        self.assertIn("native_observation_failed:2/100>0.01", verdict["reasons"])
+
 
 if __name__ == "__main__":
     unittest.main()

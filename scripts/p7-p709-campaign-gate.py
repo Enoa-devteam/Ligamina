@@ -33,7 +33,12 @@ DEFAULT_LIMITS = {
     # Jobs with a Worker run that timed out or failed. Such a side has no readable output, so it
     # is a per-job outcome (recorded unknown), not a harness signature, unless it becomes common.
     "worker_not_passed": 0.10,
+    # Known Native-side defect (2026-11-14 b0028): surrogate-escaped plugin text made the Native
+    # protocol line raise, so a passed Native Worker reported a failed observation. Fixed on branch
+    # codex/p709-native-surrogates; affected jobs are listed and rerun under a corrected plan.
+    "native_observation_failed": 0.01,
 }
+NATIVE_SIDES = {"native_first", "native_second"}
 SIDES = ("native_first", "native_second", "federated")
 
 
@@ -56,6 +61,7 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
 
     counts = Counter()
     jobs = 0
+    patch_candidates: list[str] = []
     for unit in unit_ids:
         result = (rows.get(unit) or {}).get("result") or {}
         comparison = result.get("comparison")
@@ -77,9 +83,16 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
             counts["worker_not_passed"] += 1
         # Missing signals are a harness anomaly only when that side's Worker exited normally
         # (or no run is recorded): its output was readable but carried no tool calls.
-        if any(not isinstance(signals.get(side), dict)
-               and (index >= len(runs) or runs[index].get("status") == "passed")
-               for index, side in enumerate(SIDES)):
+        missing_sides = {
+            side for index, side in enumerate(SIDES)
+            if not isinstance(signals.get(side), dict) and (index >= len(runs) or runs[index].get("status") == "passed")}
+        incomplete = comparison.get("incomplete_sides") or {}
+        if missing_sides and missing_sides <= NATIVE_SIDES and all(
+                incomplete.get(side) == "worker_observation_incomplete" for side in missing_sides):
+            counts["native_observation_failed"] += 1
+            if unit not in patch_candidates:
+                patch_candidates.append(unit)
+        elif missing_sides:
             counts["call_signals_missing"] += 1
         if any(run.get("cleanup_confirmed") is not True for run in runs):
             counts["cleanup_unconfirmed"] += 1
@@ -98,6 +111,7 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
         "limits": limits,
         "status": "anomaly" if reasons else "passed",
         "reasons": reasons,
+        "patch_candidates": patch_candidates,
     }
 
 
