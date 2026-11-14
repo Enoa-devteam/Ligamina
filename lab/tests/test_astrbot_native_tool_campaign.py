@@ -30,6 +30,17 @@ class AstrBotNativeToolCampaignTests(unittest.TestCase):
         self.assertNotIn("import ligamina_astrbot", source)
         self.assertIn('name="p7_native_test"', source)
 
+    def test_surrogate_escaped_emoji_in_plugin_replies_cannot_discard_the_observation(self):
+        from lab.astrbot_native_tool_side import _json_safe, _utf8_safe
+
+        # astrbot_plugin_mc_update writes emoji as "📰" in a str literal; the lone
+        # surrogate code points made the UTF-8 protocol line raise and lose every reply.
+        self.assertEqual(_utf8_safe("📰 news \ud800 end"), "\U0001f4f0 news � end")
+        self.assertEqual(_utf8_safe("plain 文本"), "plain 文本")
+        observation = {"tool_calls": {"steps": [[{"replies": ["🌟 ok"], "note": "\udcff"}]]}}
+        encoded = json.dumps(_json_safe(observation), ensure_ascii=False).encode("utf-8")
+        self.assertEqual(json.loads(encoded)["tool_calls"]["steps"][0][0]["replies"], ["\U0001f31f ok"])
+
     def test_group_subcommands_are_dispatched_with_spaces_as_astrbot_matches_them(self):
         from types import SimpleNamespace
 

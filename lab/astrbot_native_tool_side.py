@@ -28,8 +28,31 @@ ACCOUNT_ID = "astrbot-ab05-bot"
 TOOL_PREFIX = "cmd.astrbot-ab05."
 
 
+def _utf8_safe(text: str) -> str:
+    """Make plugin text UTF-8 encodable as a UTF-16 consumer would read it.
+
+    Plugins may build str values from surrogate escapes (``"\\ud83d\\udcf0"``). Valid pairs are
+    joined into the real character; lone surrogates become U+FFFD instead of raising.
+    """
+    try:
+        text.encode("utf-8")
+        return text
+    except UnicodeEncodeError:
+        return text.encode("utf-16-le", "surrogatepass").decode("utf-16-le", "replace")
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, str):
+        return _utf8_safe(value)
+    if isinstance(value, dict):
+        return {_json_safe(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    return value
+
+
 def emit(value: dict[str, Any]) -> None:
-    PROTOCOL_OUT.write(json.dumps(value, ensure_ascii=False) + "\n")
+    PROTOCOL_OUT.write(json.dumps(_json_safe(value), ensure_ascii=False) + "\n")
     PROTOCOL_OUT.flush()
 
 
