@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_astrbot_campaign_checkpoint",
+  "observed_at_utc": "2026-11-15T12:18:32Z",
+  "status": "running",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "plan_sha256": "147c4d7a2c3289e67c5a3a979482d498823249c35a5efef0f23e0af3d82c7f06",
+  "census_sha256": "b5d149ebbfc690a6889c2e32d4443d8a341771a9c1f07ec1965f27c7baa0a9b0",
+  "frozen_denominator": {
+    "snapshot_entries": 3271,
+    "frozen_entries": 3265,
+    "excluded_non_frozen": 6
+  },
+  "registered_jobs": {
+    "inventory_backfill": 55,
+    "differential": 14655,
+    "total": 14710
+  },
+  "completed_bounded_batches": [
+    {
+      "path": "outputs/acceptance/p7-p709-astrbot-campaign-execution-batch-20261115T120005Z-canary-pid-3566670-b0001.json",
+      "sha256": "7aa47b77d405644ffe44a18e8b8d46820785918f0fb50091bd95c2b43b372726",
+      "calls": 20,
+      "comparison": {
+        "equivalent": 14,
+        "non_equivalent": 1,
+        "nondeterministic": 3,
+        "unknown": 2
+      },
+      "C7": {
+        "passed": 18,
+        "unknown": 2
+      },
+      "queue_counts_at_report": {
+        "queued": 14690,
+        "leased": 0,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "unknown": 2,
+        "total": 14710
+      },
+      "inputs": [
+        {
+          "path": "outputs/acceptance/p7-p709-linux-worker-probe-campaign-20261115T120005Z-canary-pid-3566670-b0001.json",
+          "sha256": "9d05a438e3eea7abb7ff59c5941c26c87745a39896d4ebcb788f383a3bbf70c9"
+        },
+        {
+          "path": "outputs/acceptance/p7-p709-linux-admission-campaign-20261115T120005Z-canary-pid-3566670-b0001.json",
+          "sha256": "cab368c8968358e6b72142270fdda5f032e00388ad79598d302a0e8b4bd84ef6"
+        },
+        {
+          "path": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261115T120005Z-canary-pid-3566670-b0001.json",
+          "sha256": "9ecdb30239fabe03725e859dacd061249b01c8f7cdc38de7b0b5d38e6ea233e4",
+          "gate_status": "passed"
+        }
+      ]
+    }
+  ],
+  "completed_report_aggregate": {
+    "calls": 20,
+    "comparison": {
+      "equivalent": 14,
+      "non_equivalent": 1,
+      "nondeterministic": 3,
+      "unknown": 2
+    },
+    "C7": {
+      "passed": 18,
+      "failed": 0
+    },
+    "all_reported_calls_finished": true,
+    "matched_queue_rows": 20,
+    "repeated_attempt_calls": 0,
+    "terminal_rows_without_report": 0,
+    "pre_dispatch_failures": 0,
+    "reported_rows_cleanup_confirmed": 20,
+    "reported_worker_runs_cleanup_confirmed": 60
+  },
+  "queue": {
+    "path": "/home/vegetable/.local/share/ligamina/p7-astrbot-command-campaign-depsfix-20261115.sqlite3",
+    "counts": {
+      "queued": 14690,
+      "leased": 0,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "unknown": 2,
+      "total": 14710
+    },
+    "conserved_total": 14710,
+    "attempts_used_sum": 20,
+    "quick_check": "ok",
+    "unknown_reasons": {
+      "worker_observation_incomplete": 2
+    },
+    "terminal_worker_cleanup_unconfirmed": 0,
+    "active_leases": [],
+    "terminal_pre_dispatch_failures": []
+  },
+  "executor_tdd_boundary": {
+    "seam": "StageQueue claim/finish/reconciliation and WorkerSpec-to-WorkerResult projection",
+    "tests": [
+      "test_claimed_job_runs_native_twice_and_federated_then_finishes_with_fenced_comparison",
+      "test_finished_queue_result_contains_sanitized_c7_projection",
+      "test_unconfirmed_worker_cleanup_quarantines_job_until_reconciliation_confirms_cleanup",
+      "test_restart_reconciles_expired_fenced_lease_before_reclaiming"
+    ],
+    "test_module": "lab/tests/test_astrbot_campaign_execute.py",
+    "reported_targeted_tests": "32/32 passed"
+  },
+  "acceptance_boundary": "This checkpoint accounts for 20 finished command-job calls from 1 sidecar-verified bounded reports (20 unique jobs). 20 calls have Native\u00d72/Federated comparisons (14 equivalent, 1 non-equivalent, 3 nondeterministic, 2 unknown). Every report unit ID matches a terminal StageQueue row, and all 60 recorded Worker runs have confirmed cleanup. 0 pre-dispatch failures are kept separate. The campaign denominator remains fixed at 14,710; this is execution evidence only, not plugin correctness or support.",
+  "next": "Continue the same queue with fresh exact-image probe/admission per bounded batch; halt on any batch gate anomaly and rerun affected jobs only under a corrected plan.",
+  "pre_dispatch_failures": [],
+  "plan_path": "outputs/acceptance/p7-p709-astrbot-campaign-plan-depsfix-20261115.json",
+  "worker_image": "ligamina-astrbot-tool-runtime@sha256:9ba30b9d5a47a3b065d5f693058ce082b0786d836f70604e9a49686cd47d28ab"
+}
