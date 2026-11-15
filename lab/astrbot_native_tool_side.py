@@ -196,10 +196,23 @@ def _extract_runtime(request: dict[str, Any]) -> Path:
     return runtime_site
 
 
+def _add_plugin_site(site_dir: Path) -> None:
+    """Expose installed plugin requirements the way a real AstrBot site-packages does.
+
+    ``site.addsitedir`` appends after the standard library and AstrBot's runtime (and honours
+    ``.pth`` files), so an obsolete backport such as ``typing`` cannot shadow the stdlib.
+    """
+    if site_dir.is_dir():
+        import site
+
+        site.addsitedir(str(site_dir))
+
+
 async def run(request: dict[str, Any], plugin_dir: Path) -> dict[str, Any]:
     started = time.monotonic()
     runtime_site = _extract_runtime(request)
     sys.path.insert(0, str(runtime_site))
+    _add_plugin_site(WORK / "site")
     os.environ["ASTRBOT_ROOT"] = str(WORK / "astrbot-native")
     os.environ["ASTRBOT_DISABLE_METRICS"] = "1"
     root = Path(os.environ["ASTRBOT_ROOT"])

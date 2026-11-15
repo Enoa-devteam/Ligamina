@@ -33,10 +33,13 @@ DEFAULT_LIMITS = {
     # Jobs with a Worker run that timed out or failed. Such a side has no readable output, so it
     # is a per-job outcome (recorded unknown), not a harness signature, unless it becomes common.
     "worker_not_passed": 0.10,
-    # Known Native-side defect (2026-11-14 b0028): surrogate-escaped plugin text made the Native
-    # protocol line raise, so a passed Native Worker reported a failed observation. Fixed on branch
-    # codex/p709-native-surrogates; affected jobs are listed and rerun under a corrected plan.
-    "native_observation_failed": 0.01,
+    # A passed Native Worker reporting a failed observation (2026-11-14 b0028: surrogate text made
+    # the protocol line raise). Fixed in the depsfix harness, so any recurrence halts; affected jobs
+    # are listed as patch_candidates.
+    "native_observation_failed": 0.0,
+    # Native errors on every call while Federated does not (2026-11-15: plugin requirements were
+    # never on the Native sys.path, so the plugin was not loaded). About 0.2% with the fix.
+    "native_all_calls_error": 0.05,
 }
 NATIVE_SIDES = {"native_first", "native_second"}
 SIDES = ("native_first", "native_second", "federated")
@@ -78,6 +81,8 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
             counts["federated_all_calls_error"] += 1
         if _all(native, "silent"):
             counts["native_all_calls_silent"] += 1
+        if _all(native, "errors") and not _all(signals.get("federated"), "errors"):
+            counts["native_all_calls_error"] += 1
         runs = result.get("worker_runs") or []
         if any(run.get("status") != "passed" for run in runs):
             counts["worker_not_passed"] += 1

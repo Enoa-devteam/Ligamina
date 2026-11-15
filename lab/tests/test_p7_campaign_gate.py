@@ -83,10 +83,10 @@ class CampaignGateTests(unittest.TestCase):
         verdict = gate.evaluate(_report(10), rows, gate.DEFAULT_LIMITS)
         self.assertIn("call_signals_missing:1", verdict["reasons"])
 
-    def test_known_native_observation_failure_is_tolerated_and_listed_for_the_patch_run(self) -> None:
+    def test_native_observation_failure_is_a_hard_anomaly_once_the_harness_is_fixed(self) -> None:
         # 2026-11-14 b0028: surrogate-escaped plugin text made the Native protocol line raise, so both
-        # passed Native Workers reported a failed observation. Fixed on a separate branch; the run
-        # keeps its identity and affected jobs are rerun at the end under a corrected plan.
+        # passed Native Workers reported a failed observation. The depsfix harness keeps such text,
+        # so any recurrence is a new harness defect; affected jobs are still listed.
         failed_native = _result(federated=_signals(silent=2), category="unknown")
         failed_native["comparison"]["call_signals"]["native_first"] = None
         failed_native["comparison"]["call_signals"]["native_second"] = None
@@ -96,13 +96,25 @@ class CampaignGateTests(unittest.TestCase):
         rows = {f"u{i}": {"status": "passed", "result": _result()} for i in range(100)}
         rows["u7"] = {"status": "unknown", "result": failed_native}
         verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
-        self.assertEqual(verdict["status"], "passed", verdict["reasons"])
-        self.assertEqual(verdict["counts"]["native_observation_failed"], 1)
+        self.assertIn("native_observation_failed:1/100>0.0", verdict["reasons"])
         self.assertEqual(verdict["patch_candidates"], ["u7"])
 
-        rows["u8"] = {"status": "unknown", "result": failed_native}
+    def test_native_errors_on_every_call_halt_above_five_percent(self) -> None:
+        # 2026-11-15 b0009 diagnosis: Native never put installed plugin requirements on sys.path, so
+        # plugins with dependencies were not loaded and every Native call failed with
+        # "native command not discovered" (956 of 1,921 such jobs). No gate signal watched it.
+        native_errors = _result(category="non_equivalent")
+        native_errors["comparison"]["call_signals"]["native_first"] = _signals(errors=2)
+        native_errors["comparison"]["call_signals"]["native_second"] = _signals(errors=2)
+        rows = {f"u{i}": {"status": "passed", "result": _result()} for i in range(100)}
+        rows["u0"] = {"status": "passed", "result": native_errors}
         verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
-        self.assertIn("native_observation_failed:2/100>0.01", verdict["reasons"])
+        self.assertEqual(verdict["status"], "passed", verdict["reasons"])
+        self.assertEqual(verdict["counts"]["native_all_calls_error"], 1)
+        for i in range(1, 6):
+            rows[f"u{i}"] = {"status": "passed", "result": native_errors}
+        verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
+        self.assertIn("native_all_calls_error:6/100>0.05", verdict["reasons"])
 
 
 if __name__ == "__main__":

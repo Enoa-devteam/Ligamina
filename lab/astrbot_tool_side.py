@@ -124,6 +124,20 @@ def run_tool_steps(client: Any, host_id: str, steps: list[list[dict[str, Any]]])
     return recorded
 
 
+def _plugin_site_bootstrap(work: Path, site_dir: Path) -> Path:
+    """Return a PYTHONPATH entry that adds ``site_dir`` like site-packages in the Host process.
+
+    Putting the install directory itself on PYTHONPATH would place it ahead of the standard
+    library (an obsolete ``typing`` backport then crashes the Host). A sitecustomize that calls
+    ``site.addsitedir`` appends it after the stdlib and the AstrBot venv instead.
+    """
+    bootstrap = work / "plugin-site-bootstrap"
+    bootstrap.mkdir(parents=True, exist_ok=True)
+    (bootstrap / "sitecustomize.py").write_text(
+        f"import site\nsite.addsitedir({str(site_dir)!r})\n", encoding="utf-8")
+    return bootstrap
+
+
 def run(request: dict[str, Any], install_result: dict[str, Any], plugin_dir: Path) -> dict[str, Any]:
     from mcp_http import McpHttpClient
 
@@ -134,7 +148,7 @@ def run(request: dict[str, Any], install_result: dict[str, Any], plugin_dir: Pat
     registration_token = secrets.token_hex(32)
     python_path = [str(INPUT / "project" / "hosts" / "astrbot")]
     if install_result.get("status") == "installed":
-        python_path.insert(0, str(WORK / "site"))
+        python_path.insert(0, str(_plugin_site_bootstrap(WORK, WORK / "site")))
     config = {
         "listen": "127.0.0.1:0", "database_path": str(core_dir / "core.sqlite"), "admin_token": admin_token,
         "mcp_client_id": client_id,
