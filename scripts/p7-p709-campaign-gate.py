@@ -58,11 +58,21 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
     for status in set(statuses) - {"finished", "idle"}:
         reasons.append(f"call_status:{status}:{statuses[status]}")
     unit_ids = [call["unit_id"] for call in calls if call.get("unit_id")]
-    missing = [unit for unit in unit_ids if rows.get(unit, {}).get("status") not in TERMINAL]
-    if missing:
-        reasons.append(f"non_terminal_queue_rows:{len(missing)}")
-
     counts = Counter()
+    stuck = []
+    for unit in dict.fromkeys(unit_ids):
+        row = rows.get(unit, {})
+        if row.get("status") in TERMINAL:
+            continue
+        # A retryable attempt returns the job to the queue; another batch runs the next attempt.
+        if (row.get("status") == "queued" and isinstance(row.get("attempts_used"), int)
+                and 1 <= row["attempts_used"] < (row.get("max_attempts") or 0)):
+            counts["retry_pending"] += 1
+        else:
+            stuck.append(unit)
+    if stuck:
+        reasons.append(f"non_terminal_queue_rows:{len(stuck)}")
+
     jobs = 0
     patch_candidates: list[str] = []
     for unit in unit_ids:
@@ -134,9 +144,11 @@ def main() -> int:
     con = sqlite3.connect(f"file:{report['queue_db']}?mode=ro", uri=True)
     try:
         rows = {
-            unit: {"status": status, "result": json.loads(result) if result else None}
-            for unit, status, result in con.execute(
-                "SELECT unit_id, status, result_json FROM jobs WHERE run_id = ?", (report["run_id"],))
+            unit: {"status": status, "attempts_used": used, "max_attempts": maximum,
+                   "result": json.loads(result) if result else None}
+            for unit, status, used, maximum, result in con.execute(
+                "SELECT unit_id, status, attempts_used, max_attempts, result_json FROM jobs WHERE run_id = ?",
+                (report["run_id"],))
         }
     finally:
         con.close()

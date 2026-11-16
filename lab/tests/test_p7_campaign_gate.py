@@ -28,6 +28,19 @@ def _report(count: int) -> dict:
 
 
 class CampaignGateTests(unittest.TestCase):
+    def test_job_requeued_for_a_pending_retry_is_not_a_stuck_row(self) -> None:
+        # 2026-11-15 b0005: the batch's last job finished a retryable attempt 1 at 19:31:55 and was
+        # queued again; the gate ran in the same second. Attempt 2 ran in slot 2's next batch.
+        rows = {f"u{i}": {"status": "passed", "result": _result()} for i in range(10)}
+        rows["u9"] = {"status": "queued", "attempts_used": 1, "max_attempts": 2, "result": None}
+        verdict = gate.evaluate(_report(10), rows, gate.DEFAULT_LIMITS)
+        self.assertEqual(verdict["status"], "passed", verdict["reasons"])
+        self.assertEqual(verdict["counts"]["retry_pending"], 1)
+
+        rows["u9"] = {"status": "leased", "attempts_used": 1, "max_attempts": 2, "result": None}
+        self.assertIn("non_terminal_queue_rows:1", gate.evaluate(_report(10), rows, gate.DEFAULT_LIMITS)["reasons"])
+        rows["u9"] = {"status": "queued", "attempts_used": 2, "max_attempts": 2, "result": None}
+        self.assertIn("non_terminal_queue_rows:1", gate.evaluate(_report(10), rows, gate.DEFAULT_LIMITS)["reasons"])
     def test_clean_batch_passes(self) -> None:
         rows = {f"u{i}": {"status": "passed", "result": _result()} for i in range(10)}
         verdict = gate.evaluate(_report(10), rows, gate.DEFAULT_LIMITS)
