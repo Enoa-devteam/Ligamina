@@ -1,0 +1,903 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_astrbot_campaign_execution_checkpoint",
+  "status": "running",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "plan_sha256": "147c4d7a2c3289e67c5a3a979482d498823249c35a5efef0f23e0af3d82c7f06",
+  "census_sha256": "b5d149ebbfc690a6889c2e32d4443d8a341771a9c1f07ec1965f27c7baa0a9b0",
+  "frozen_denominator": {
+    "snapshot_entries": 3271,
+    "frozen_entries": 3265,
+    "selected_entries": 3265
+  },
+  "campaign_plan_counts": {
+    "load_passed": 3012,
+    "load_failed": 154,
+    "load_skipped": 99,
+    "load_unknown": 0,
+    "inventory_backfill_required": 55,
+    "inventory_backfill_jobs": 55,
+    "inventory_truncated": 0,
+    "observed_commands": 14655,
+    "differential_jobs": 14655,
+    "contract_status": "not_evaluated"
+  },
+  "queue_db": "/home/vegetable/.local/share/ligamina/p7-astrbot-command-campaign-depsfix-20261115.sqlite3",
+  "queue_registration": {
+    "run_id": "p7-09-astra-560efa13259e468f8aea",
+    "manifest_sha256": "560efa13259e468f8aea7821bd4a685ae72004541c8962c35b7c43fcdb2bb5b9",
+    "created": 0,
+    "existing": 14710,
+    "counts": {
+      "queued": 11344,
+      "leased": 1,
+      "passed": 3122,
+      "failed": 1,
+      "skipped": 0,
+      "unknown": 242,
+      "total": 14710
+    }
+  },
+  "queue_counts": {
+    "queued": 11124,
+    "leased": 1,
+    "passed": 3327,
+    "failed": 1,
+    "skipped": 0,
+    "unknown": 257,
+    "total": 14710
+  },
+  "worker_attempt_count": 3591,
+  "contracts": {
+    "evaluated_differential_jobs": 3584,
+    "pending_differential_jobs": 11071,
+    "total_registered_differential_jobs": 14655,
+    "by_contract": {
+      "C1": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      },
+      "C2": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      },
+      "C3": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      },
+      "C4": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      },
+      "C5": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      },
+      "C6": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      },
+      "C7": {
+        "passed": 3329,
+        "failed": 0,
+        "unknown": 255
+      },
+      "C8": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 3584
+      }
+    },
+    "scope_note": "Counts cover registered command-level differential jobs. Load non-passes, skipped identities, and entries without observed command inventories remain represented by the frozen census/plan dispositions without fabricated contract checks.",
+    "acceptance_boundary": "Only directly observed evidence is classified; unrun stimuli remain unknown."
+  },
+  "calls": [
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3c9d22fb2bac6d8de43a34080bcbca7128fff883c69177d9d13bc8fb47e106d2",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ca0d6a942c5c19861896a6f8cc7624bedc0a6d62cb5cc260690abf4a65bf3c6",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ca8bbba6d936bec358b0f9a69e1402a09a2990ae28bafdeb5d712fdaca4dc96",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cac1190b7a3e561898b6521a1804f8ac8b5ae4be605dc634a9c6aab2e733d7c",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cb11b52c109c1df53048bbf1a5aaae5058d4322eaf3a4b43c2827fdaa3b7543",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cbe1d4777d525119ce5612f741ed423c704a0bf5a5fbed920289613d9b65b82",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cc7c88858f85767b8f7c7d72e00ff858c3bf2d6725e74fc5ce51d00cc520e71",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ccbe4d8bd871ea2fbc4dd8c2e9954430f71534c34c38fef62f0154ab27423ad",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cd0d14524e3263553a3779fc02149018bfb5a5055de9a2c18e8f3e6385ed8ea",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cd945a2c393c9fc6d956ae65ec01e19af83c26d240668a6e799021e23f77a5b",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ce3384f93f6f39d5eef7ca5d0ee4000ec97960c75d202bff8e7670f43e10ee3",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ceacecec4642ed320c3cbb4878784239d7941204f95e5d4c62d68a01a73bb79",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3cfb196751820b69a6eb420592a3ced11d35a675c48ab2e26411a73f7e6d38a7",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d05302d86a3b914e1a3953cf429f0abe8163b87d826950347d10f7bc2b9744f",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d0f2a7c6827db57c74d154c13133bf783c638e3ec684c28ba4029d3ae64e1e0",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d1f6320cad1de5ff4a5ff22a4df2fd55af2a4013139973c59a6c3f054eb6d72",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d22eb0b9079d0cfbf509087fa6598ba77aedf058a299fdd92931616568f66eb",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d2f1b29792f3089e943fea4300881750598fbc0182d0a2b2b2653edb4f1eb05",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d33888ab270baa6f682f850243862abb9f7b20d057afa6c8078360301e4db81",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d3adf2611ca68cf6b290505c24abb0d025f2a187371d16c6cf59628407fd5c1",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d4e2df96c09e94bb50aea8358dbaf5b358079e95dccb0137ef92e40f52440ad",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d521083cd5823ec77b63ab39c73f9de853f9e59c1347e1ffdb0324611881b14",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d5878f7e08b084f598b64c62099288d2b348caee49049f8c6b918a477ad0818",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d6291fd8a54b03019467202d88eda9b053423b11470a3fc162852bc33813e96",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d67962bbce652cb062e77e648018cceb2e8912ad0ecd577c6b1158f0aaf52c8",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d6d58c329b48be45b5943958c92ce22fd208adf7add2c666fa0dd44d26015d7",
+      "reason_code": null,
+      "comparison": "non_equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d724c0914f985aff6541aa3bb67e361754f4b7a778ac9afd96175c1eb9db26b",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d7cc65828c60446c643c7d4465735dd8ce6efe523f6b5c60c6109eb5c9bd8e1",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d7d267f22f848005e5c29d82d10151d7c3bb78ee51fe4e601ebf54dc7cc47f7",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d8618a5c70c00f01aa6401238bc55569b7559ea13b262fc115f18e227d9df11",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d873b16e266e0e9ed73541077d5d374402cd0af407a5c83383ff1f26d42919f",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3d93c30c53b2812ac88113b1e02775447f4a620f6a55e0c6c47f5aea3c566650",
+      "reason_code": null,
+      "comparison": "non_equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3dad0712114cf98d8630417fdc134b9b271142933203a73a49ecd67be25bf1cb",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3db381c168ff4f6583bb095007e90e3dff313a0d9296f41a7c9148e0673c63b1",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3db9e896f5c77a50039a05178a3bf6c14e1389bac90e54038712b236cfec9660",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3dc3bdeef8e50c006aff6d5bd105e68fc90d3653975d9b1a67c32908789b7d95",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3dc87da4c3fd35b35e072809a892363c870eec771d2c4320049654bc8611be15",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3dd0c1d45ceded0d54e703cf65f6c93bee3c3114adc3eee6b5ce57debc158fd8",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3de5a9cda93f7e8528a028ad03d37a3f64a155c8a9fe3ef8f33ff7a015dea54e",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3deba1a322f0b14bd1e71f12ca8fd8cdbb2dfa28c53ce36c23b58510656220cf",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3defc0a61069380985943378f2f489cc240ef4ec10ed7a2dee1b18de2679e5c9",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3dff072566374d09b090592c0f96c0ac3a8c01fef2bc8f7752be4a938ddc264d",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e01f1c45597f47980ea5bc617e4580d20f92612c6001953068582c96afb7a8c",
+      "reason_code": null,
+      "comparison": "non_equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e5dcc927107d5cf32fa4c17cd55e937f79aaba5c29f18a543135b6ffa71c96e",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e633ea11cce2e00da56a154467cddc1b3741b70f2cfa18d76edf2028026ba73",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e63f866840e816ab53b5e106643f25eb0a1e168c3ca77937daabd36c33e7755",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e66f4850436c56ca9ed008f43216c6298988d1be29976b2a26745a4910f803d",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e70f03fc4940e8112c4bbb6eb75e0b32523e4c32a52fb331fe1168777d19581",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e7a73b7ff8b18b5d146ad7cae85bef142691a305af96480ee5bf506af1ec68a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e7aec1795196ba8077976990dd1dfda55b5c1678da7779a2865392d0a94e740",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e8b2215c2efadb8d58a16a066e095bc728cdcf193e1439c6105a8b270d7640b",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e8ecf56a523c5df9c6a43bc26f5acad75b6d59d9fcdfaffb6fcc2967386f33d",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e95025aa4f1bb1eb494c6996a88837ba6bae50dba163d23f8882d8a8cbd0892",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3e9bd95a5a206c4d5896b1e712c0c48a2ba6be22ad3afa778ba0331791f47702",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3eb2425f2af3ea3ed771f4156530a498d0da14e24eb4a4fdbe27da4d0d9e4b8a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ebe14c410d74b0308d09a0a64208a1c5461ff6113ca02b131f501362fcd2d7e",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ecb823b52428223297974058fbff6bc699a71aa9206c92c7f76cbc2893b46fb",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ed0670a40c1735807be8068cff65d0473ce1f873d8751a1181282cc64f96751",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ed23c893916483e8f3b0da0f694832783cf7c1d2f82e5160a14387157963357",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ed4496f92228cfaa068073f7516e2b10bc735027dfd3973840f92cb3ed8bd1a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ed96c4b3d20bb4f264a5ac528025d314e8a2ae21ca393080426807ae2c817dc",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ee67a2f6bded5a184d9685c0f1a31e2f2b1d24fc12eeac86e133002b3a06285",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ef059d88a9fd986e22b85adbb7db158e4a1381216589d40fe25618dc6b4508a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f0089d3552737bc60c28641b0e4bc4738997da3b89f71e90e4b9c0d02e6db6e",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f078b989844c6008c389d2aae3b123b9c76c3da8ba302108ec04c8c6d066047",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f14347a92d736e88ab8c23d6190b2c0cf0dc1b95a072bc3e451eb20c849bde2",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f17b52543105486f092e5fa8b3c0c2af33594748fe1d37056c73175b1ad83c4",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f1c8553bd23167fa1f1f4f19ebc75740146363e661da1a301220375d7831077",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f2ae673def48e1167089dd5fb6df41f986b5a346790d8cba6e7022bc7d635b8",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f2e2cbf06757542e5dfe2544b2f81934364d77192b9808cc7f25951878186d0",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f3502f63434dacd02312ede2372692bfa6051587044c94a0bd8f0b14447f2c1",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f38e302d803d70b5fe6c51b6bc60ef9928e9c01a5173ea4c84965d916a9e068",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f4be94a7575853c70edfda665951a778a676ce3f89c801ac3b5f8af2d5b2519",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f573363367ed521528f63d60cbf2446e5c2e6edaf4f6eaea64da5b95d1a234b",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f5ca7eb43fbbcbce517450a7c01b7a89f3e4fada8637a354171c306e372b4ef",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f65899d583dc7ba22ca1676fba7f2a01f8d6e420e4993f1ff432202badf961c",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f6bc83e7ba51542878d80b637d721f0adad3bbba468391dd74181b9fe21dbdf",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f79651c76d0beed46ffeba7c7957a4dcdd4787d0c317227de3f145c8ffaf435",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f8191de0b6e58187f423e8d09eaa6ff1bb3e8b33a5bee4515272987716b5477",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f8806bc35f3498284df00bd0216455178b299f6c184378ef966f23c9550e699",
+      "reason_code": null,
+      "comparison": "non_equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f8f5660dc34261dc6bbdfa9dd7b545a3d56e0a35bf571a0d8975cfaf99a1e3e",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f952384e3a1c84600f2da0ba4ba6eb0bf82adceb488e4baf3cbdd19dbb39eaa",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3f9748869b162c0746710c1a3a5a1c429c1d75197b6cc9becc0c75341b11c6d5",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fa48d916359d4ccde9f8e4b046c5ddef58a697994a0f10b500ccdd6c5360e25",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fae7398643fba6adb56a9541549fa227452c3c78fe759247d53954e21ba949a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fafddee492eaef4fee674fb94705751f0187aefb57c026009df8ccc1939784a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fb6f033526f27552d60fe8b132125d1a316b7d12cdb63f1ad1b112167b195e5",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fbe9a23a795daaf4a33a7521c7752dab250978b561f054f880652256385a931",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fc7c1ccf18e8e63411e42cb817a8bffecd7ddfb6288fda532951b5bbe039f7a",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fcb79618319a6347e0487493c3112556132f6e523d0d74c861ddd623c30a58c",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fcebd658bf33fc0eb9bad88c8429b26d314dd4824c0f58167f01f07851f6d32",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fd5ad54fca0672e94deb2cdde17870d842742da0301ba4434802c66ee354310",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fddb305b8fcba1484ba3bb37c9b1a5f210ba98412afc89972199eb526359fde",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3fea5de4ec38dcccd44f9b849c24b33aefc6de5b823a12ff7912dc78bf9585aa",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ff36208b99d4589bb50d391bbf51707f86120412a53cc34145d45d38ffa74aa",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-3ff67236df3e2a8f95603681c157d2ca3d965facbd39776ee5e2a2088e2a50e7",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-4003bee78cd9f697454bd55361840a97ece5fab8253b379b75925011bc7f1a96",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-40153e15394c01b743f0f296b421b049b2a11f5a0267e49c2799b9088afb0a81",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-4017d279e1f3fef8f5811d9fc1b38e77251e7cf456d4265bfd095516cc587694",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-402031b785bfdec8b07c6b1cde14861a2de5a722b289eeed1f3401a0aac154d6",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    }
+  ],
+  "acceptance_boundary": "Execution and observation comparison only; equivalent is not plugin correctness or support. Unknown remains distinct and cleanup must be reconciled before retry."
+}
