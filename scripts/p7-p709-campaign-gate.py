@@ -76,7 +76,15 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
     jobs = 0
     patch_candidates: list[str] = []
     for unit in unit_ids:
-        result = (rows.get(unit) or {}).get("result") or {}
+        row = rows.get(unit) or {}
+        result = row.get("result") or {}
+        # A job that failed before any Worker started (e.g. bundle preparation could not download
+        # dependencies) records no plugin behaviour; any occurrence halts for diagnosis.
+        if row.get("status") == "failed" and not result.get("worker_runs"):
+            counts["pre_dispatch_failed"] += 1
+            if unit not in patch_candidates:
+                patch_candidates.append(unit)
+            continue
         comparison = result.get("comparison")
         if not isinstance(comparison, dict):
             continue
@@ -111,6 +119,8 @@ def evaluate(report: dict, rows: dict[str, dict], limits: dict[str, float]) -> d
             counts["call_signals_missing"] += 1
         if any(run.get("cleanup_confirmed") is not True for run in runs):
             counts["cleanup_unconfirmed"] += 1
+    if counts["pre_dispatch_failed"]:
+        reasons.append(f"pre_dispatch_failed:{counts['pre_dispatch_failed']}")
     if counts["call_signals_missing"]:
         reasons.append(f"call_signals_missing:{counts['call_signals_missing']}")
     if counts["cleanup_unconfirmed"]:

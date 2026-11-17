@@ -129,6 +129,17 @@ class CampaignGateTests(unittest.TestCase):
         verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
         self.assertIn("native_all_calls_error:6/100>0.05", verdict["reasons"])
 
+    def test_any_pre_dispatch_failure_halts_and_is_listed_for_the_patch_run(self) -> None:
+        # 2026-11-17: the dependency-download proxy stopped responding; four bundle preparations
+        # failed and were recorded as terminal worker_spec_invalid, one per batch, unwatched by the gate.
+        rows = {f"u{i}": {"status": "passed", "result": _result()} for i in range(100)}
+        rows["u3"] = {"status": "failed", "attempts_used": 1, "max_attempts": 2,
+                      "result": {"status": "failed", "reason_code": "worker_spec_invalid", "diagnostic_type": "RuntimeError"}}
+        verdict = gate.evaluate(_report(100), rows, gate.DEFAULT_LIMITS)
+        self.assertIn("pre_dispatch_failed:1", verdict["reasons"])
+        self.assertEqual(verdict["patch_candidates"], ["u3"])
+        self.assertEqual(verdict["differential_jobs"], 99)
+
 
 if __name__ == "__main__":
     unittest.main()
