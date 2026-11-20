@@ -60,6 +60,7 @@ trap finish EXIT
     lab.tests.test_native_runner \
     lab.tests.test_compare \
     lab.tests.test_compat_matrix \
+    lab.tests.test_compat_matrix_v2 \
     lab.tests.test_p7_contracts \
     lab.tests.test_p7_mutations \
     lab.tests.test_p7_stateful \
@@ -73,4 +74,6 @@ trap finish EXIT
   uv run --locked --project lab --python 3.12.14 python -m lab.automation validate-behavior
   # P6-04: the committed compatibility matrix must match the committed evidence.
   uv run --locked --project lab --python 3.12.14 python -m lab.compat_matrix check
+  # P7-10: matrix v2 must match its evidence and the committed v1 matrix it binds.
+  uv run --locked --project lab --python 3.12.14 python -m lab.compat_matrix_v2 check
 } 2>&1 | tee "$log"
