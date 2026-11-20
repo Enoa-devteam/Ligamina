@@ -90,6 +90,7 @@ def _copy_python_sources(project: Path) -> None:
         "hosts/nonebot/ligamina_nonebot/capabilities.py",
         "hosts/nonebot/ligamina_nonebot/commands.py",
         "hosts/nonebot/ligamina_nonebot/contracts.py",
+        "hosts/nonebot/ligamina_nonebot/frames.py",
         "hosts/nonebot/ligamina_nonebot/lifecycle.py",
         "hosts/nonebot/ligamina_nonebot/inventory.py",
         "hosts/nonebot/ligamina_nonebot/worker.py",

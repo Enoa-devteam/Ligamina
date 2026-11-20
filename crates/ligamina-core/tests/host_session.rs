@@ -328,6 +328,39 @@ async fn malformed_and_oversized_frames_close_the_session() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn lone_surrogate_escape_from_a_host_closes_the_session() {
+    // The Core parses Host frames strictly. A paired surrogate arrives as a real UTF-8 character
+    // and is accepted; a lone surrogate escape ("\ud800") is invalid JSON text and ends the whole
+    // Host session, so every Host must send well-formed Unicode.
+    let worker = start_worker("node").await;
+    let paired = worker
+        .session
+        .request(
+            "host.surrogates",
+            json!({"lone": false}),
+            Duration::from_secs(10),
+        )
+        .await
+        .unwrap();
+    assert_eq!(paired["text"], "\u{1f4f0} news");
+
+    let lone = worker
+        .session
+        .request(
+            "host.surrogates",
+            json!({"lone": true}),
+            Duration::from_secs(10),
+        )
+        .await;
+    assert!(lone.is_err());
+    assert!(matches!(
+        worker.session.wait_closed().await,
+        RpcError::Malformed(_)
+    ));
+    worker.stop().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn oversized_core_request_closes_the_session_and_fails_pending_request() {
     let worker = start_worker("node").await;
     let result = worker

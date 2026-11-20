@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "host_frame_encoding_verification",
+  "recorded_at_utc": "2026-11-20",
+  "branch": "codex/astrbot-host-surrogate-frames",
+  "finding": {
+    "source": "P7-09 / feat-054 campaign, plugin ab-f95a046886ecbe3efcf97251 (astrbot_plugin_mc_update), command mcupdate_latest",
+    "symptom": "Native side returned the plugin text; the Federated side returned no reply.",
+    "cause": "Each Python Host encoded its NDJSON frame with .encode(\"utf-8\"), which raises UnicodeEncodeError on str values containing surrogates that plugins build from escapes such as the pair U+D83D U+DCF0; the reply frame was lost. The Koishi Host uses JSON.stringify, which writes a lone surrogate as a \\udXXX escape, and the Core rejects such a frame as invalid JSON and closes the whole Host session."
+  },
+  "fix": {
+    "modules": [
+      "hosts/nonebot/ligamina_nonebot/frames.py",
+      "hosts/astrbot/ligamina_astrbot/frames.py",
+      "hosts/koishi/src/frames.ts"
+    ],
+    "rule": "Before a frame is written, string values and object keys are made well-formed: a valid surrogate pair becomes its character, a lone surrogate becomes U+FFFD; already encodable text is unchanged byte for byte.",
+    "packaging": "AstrBot HOST_FILES (lab/astrbot_census.py), the P7-09 campaign source list (lab/astrbot_campaign_plan.py, which also lacked inventory.py) and the Phase 4 NoneBot copy list (lab/automation/phase4_campaign.py) now include frames.py; a test requires every list to cover each relative import of the Host worker."
+  },
+  "tests": [
+    {"name": "Core characterization: lone_surrogate_escape_from_a_host_closes_the_session", "path": "crates/ligamina-core/tests/host_session.rs", "result": "passed"},
+    {"name": "NoneBot frame encoding", "path": "hosts/nonebot/tests/test_frames.py", "result": "3 passed (red before the fix: module missing)"},
+    {"name": "AstrBot frame encoding", "path": "hosts/astrbot/tests/frame_encoding.py", "result": "passed (red before the fix: module missing); added to scripts/check.sh and scripts/check.ps1"},
+    {"name": "Koishi frame encoding", "path": "hosts/koishi/tests/frames.test.mjs", "result": "3/3 passed (red before the fix: dist/frames.js missing); added to npm test"},
+    {"name": "Bundle and source lists cover every worker import", "path": "lab/tests/test_astrbot_tool_campaign.py", "result": "passed (red before the fix: frames.py missing from the bundle and the source list)"}
+  ],
+  "full_check_linux": {
+    "command": "bash scripts/check.sh (WSL Ubuntu 24.04)",
+    "results": {
+      "docs_gate": "passed",
+      "lab_suite": "442 tests OK (6 environment skips)",
+      "nonebot_pytest": "passed",
+      "nonebot_and_astrbot_smoke_scripts": "passed, including astrbot frame encoding",
+      "koishi_npm_test": "all suites passed, 0 failures",
+      "cargo_fmt": "passed after rustfmt of the new test",
+      "cargo_test_workspace": "63 passed, 0 failed",
+      "cargo_build_release": "finished",
+      "lab_smoke": "passed with HTTP(S)_PROXY unset; with this machine's proxy variables the loopback status request went through the proxy and returned 502 (NO_PROXY lists 127.*, which urllib does not match), an environment issue unrelated to this change"
+    }
+  },
+  "end_to_end": {
+    "method": "Out-of-queue rerun of the depsfix job for ab-f95a046886ecbe3efcf97251 / mcupdate_latest, Federated bundle prepared from this branch, image ligamina-astrbot-tool-runtime@sha256:9ba30b9d5a47a3b065d5f693058ce082b0786d836f70604e9a49686cd47d28ab",
+    "result": "The bundle contains frames.py; the Federated side completed and its replies are identical to the Native side (previously empty). No containers were left."
+  },
+  "scope": "Koishi Worker images built from deploy/lab/linux/tool-surface-runtime.Dockerfile pick up the fix when next built; AstrBot bundles copy the Host source at preparation time, so the fix applies to new AstrBot bundles immediately. No campaign result is rewritten."
+}

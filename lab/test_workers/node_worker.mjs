@@ -54,6 +54,12 @@ async function dispatch(packet) {
     await send({ jsonrpc: "2.0", id: packet.id, result: { worker: "node", done: true } });
     return;
   }
+  if (method === "host.surrogates") {
+    // JSON.stringify escapes a lone surrogate as "\udXXX"; a paired one becomes the real character.
+    const text = params.lone ? "a\ud800b" : "📰 news";
+    await send({ jsonrpc: "2.0", id: packet.id, result: { text } });
+    return;
+  }
   if (method === "host.echo") {
     const reverse = await callCore("core.reverse", { value: params.value });
     await send({
