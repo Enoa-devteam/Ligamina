@@ -45,6 +45,8 @@ CAMPAIGN_SOURCE_PATHS = (
     "hosts/astrbot/ligamina_astrbot/bridge.py",
     "hosts/astrbot/ligamina_astrbot/commands.py",
     "hosts/astrbot/ligamina_astrbot/contracts.py",
+    "hosts/astrbot/ligamina_astrbot/frames.py",
+    "hosts/astrbot/ligamina_astrbot/inventory.py",
     "hosts/astrbot/ligamina_astrbot/lifecycle.py",
     "hosts/astrbot/ligamina_astrbot/runtime.py",
     "hosts/astrbot/ligamina_astrbot/worker.py",

@@ -125,6 +125,28 @@ class AstrBotToolCampaignTests(unittest.TestCase):
         host_package = bundle / "project/hosts/astrbot/ligamina_astrbot"
         self.assertTrue((host_package / "worker.py").is_file())
         self.assertTrue((host_package / "inventory.py").is_file())
+        # Every relative import of the Host entry point must ship in the bundle (2026-11-20: the
+        # worker gained .frames, which a fixed file list would have silently left out).
+        import re
+
+        worker = (Path(__file__).resolve().parents[2] / "hosts/astrbot/ligamina_astrbot/worker.py").read_text(encoding="utf-8")
+        for module in re.findall(r"^from \.(\w+) import", worker, re.M):
+            self.assertTrue((host_package / f"{module}.py").is_file(), module)
+
+    def test_phase4_and_campaign_source_lists_cover_every_host_worker_import(self) -> None:
+        import re
+
+        from lab.astrbot_campaign_plan import CAMPAIGN_SOURCE_PATHS
+        from lab.automation import phase4_campaign
+
+        root = Path(__file__).resolve().parents[2]
+        phase4 = (root / "lab/automation/phase4_campaign.py").read_text(encoding="utf-8")
+        for package, listed in (("astrbot", set(CAMPAIGN_SOURCE_PATHS)), ("nonebot", phase4)):
+            worker = (root / f"hosts/{package}/ligamina_{package}/worker.py").read_text(encoding="utf-8")
+            for module in re.findall(r"^from \.(\w+) import", worker, re.M):
+                path = f"hosts/{package}/ligamina_{package}/{module}.py"
+                self.assertIn(path, listed, path)
+        self.assertTrue(phase4_campaign)
 
 
 if __name__ == "__main__":

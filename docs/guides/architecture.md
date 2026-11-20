@@ -26,6 +26,7 @@
 
 - Host framework 管理命令、Matcher/middleware、权限和插件依赖；Core 管理联邦路由、授权、持久化和进程生命周期。
 - stdout 是协议通道，stderr 是日志通道；请求按字符串 ID 关联，Host epoch 隔离旧进程结果。
+- Core 严格解析 Host 帧：任何非法 JSON（包括孤立 surrogate 转义 `\ud800`）都会关闭整个 Host 会话，见 [host_session 测试](../../crates/ligamina-core/tests/host_session.rs)。三个 Host 都经各自的 `frames` 模块（[NoneBot](../../hosts/nonebot/ligamina_nonebot/frames.py)、[Koishi](../../hosts/koishi/src/frames.ts)、[AstrBot](../../hosts/astrbot/ligamina_astrbot/frames.py)）写帧：成对 surrogate 合并为真实字符，孤立 surrogate 替换为 U+FFFD，其余文本逐字节不变。拷贝 Host 文件的 bundle 与源码清单必须覆盖 worker 的全部相对 import。
 - 账号、群聊/私聊、会话 ID 共同限定事件与动作作用域。保持字符串 ID，覆盖大数与群/私同 ID。
 - 已派发且失去回执的动作保持 unknown；重启不能证明真实发送成功。
 - 命令工具调用使用保留账号（Koishi `ligamina-tool`，NoneBot/OneBot `0`）和 Core 生成的 trace；这类操作只在 Core 内完成或拒绝，绝不进入 ledger/Gateway，工具结果也不是平台投递证据。

@@ -5627,6 +5627,30 @@
         "outputs/acceptance/p7-p704-feat065-verification-20261112.json.sha256"
       ],
       "plan_path": "docs/plans/2026-11-09-phase-7-automated-verification.md"
+    },
+    {
+      "id": "feat-066",
+      "task_id": "HOST-FRAMES",
+      "name": "Host 协议帧 surrogate 安全编码",
+      "description": "三个 Host 写出的 NDJSON 帧必须是合法 UTF-8 JSON：插件文本中的 surrogate 不得导致回复丢失或 Core 关闭 Host 会话。来源：P7-09 campaign 中 astrbot_plugin_mc_update 的 mcupdate_latest Federated 回复为空。",
+      "dependencies": [
+        "feat-054"
+      ],
+      "status": "done",
+      "done_when": "NoneBot、Koishi、AstrBot Host 均经 frames 模块写帧（成对 surrogate 合并，孤立 surrogate 替换为 U+FFFD，可编码文本逐字节不变）；Core 对孤立 surrogate 转义的处理有测试固定；拷贝 Host 文件的 bundle 与源码清单覆盖 worker 的全部相对 import；端到端复跑 mcupdate_latest 两侧回复一致。",
+      "evidence": "2026-11-20: Core characterization test lone_surrogate_escape_from_a_host_closes_the_session passes (a lone surrogate escape closes the whole Host session as Malformed). Frame tests red before and green after: NoneBot 3/3, AstrBot script, Koishi 3/3. The AstrBot HOST_FILES, the P7-09 campaign source list (which also lacked inventory.py) and the Phase 4 NoneBot copy list now include frames.py, enforced by a test over every relative import of the Host worker. Full Linux check: docs gate, Lab 442 OK (6 skips), Host suites, Koishi npm test, cargo test 63/63, release build; Lab smoke passes with HTTP(S)_PROXY unset (with the local proxy variables the loopback request returned 502, an environment issue). Out-of-queue rerun of ab-f95a046886ecbe3efcf97251 / mcupdate_latest: Federated replies now equal Native. Verification record outputs/acceptance/host-frame-encoding-verification-20261120.json SHA-256 43152f2ef7dd32aae1141e00cd68d635e0adc6ed7cff40e32232352ca544e343. No campaign result is rewritten.",
+      "evidence_paths": [
+        "outputs/acceptance/host-frame-encoding-verification-20261120.json",
+        "outputs/acceptance/host-frame-encoding-verification-20261120.json.sha256",
+        "hosts/nonebot/ligamina_nonebot/frames.py",
+        "hosts/astrbot/ligamina_astrbot/frames.py",
+        "hosts/koishi/src/frames.ts",
+        "hosts/nonebot/tests/test_frames.py",
+        "hosts/astrbot/tests/frame_encoding.py",
+        "hosts/koishi/tests/frames.test.mjs",
+        "crates/ligamina-core/tests/host_session.rs",
+        "lab/tests/test_astrbot_tool_campaign.py"
+      ]
     }
   ]
 }

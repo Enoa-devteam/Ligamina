@@ -5,6 +5,7 @@ import { EventEnvelope, PlatformOperation } from './adapter.js'
 import { CapabilityError, capabilityDescriptors, invokeCapability } from './capabilities.js'
 import { describeCommands } from './commands.js'
 import { validateCommandDescriptor } from './contracts.js'
+import { encodeFrame } from './frames.js'
 import { describeRuntimeInventory } from './inventory.js'
 
 const PROTOCOL_VERSION = '0.1'
@@ -201,7 +202,7 @@ class Worker {
   }
 
   private async send(packet: Record<string, unknown>) {
-    const frame = Buffer.from(`${JSON.stringify(packet)}\n`, 'utf8')
+    const frame = encodeFrame(packet)
     if (frame.byteLength > MAX_FRAME_BYTES) throw new WorkerError('frame_too_large', 'outgoing NDJSON frame exceeds 1 MiB')
     await new Promise<void>((resolve, reject) => {
       this.protocolWrite(frame, (error?: Error | null) => error ? reject(error) : resolve())

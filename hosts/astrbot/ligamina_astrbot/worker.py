@@ -11,6 +11,7 @@ from typing import Any
 
 from .commands import describe_commands
 from .contracts import event_error_code, validate_command_descriptor
+from .frames import encode_frame
 from .lifecycle import HostLifecycle, configured_plugins
 from .inventory import describe_runtime_inventory
 
@@ -229,7 +230,7 @@ class Worker:
                 future.set_result(result)
 
     async def _send(self, packet: dict[str, Any]) -> None:
-        frame = (json.dumps(packet, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
+        frame = encode_frame(packet)
         if len(frame) > MAX_FRAME_BYTES:
             raise WorkerError("frame_too_large", "outgoing NDJSON frame exceeds 1 MiB")
         async with self._write_lock:
