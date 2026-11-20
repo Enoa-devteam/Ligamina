@@ -4,7 +4,7 @@
 
 **One runtime, multiple chatbot plugin ecosystems. Reuse native plugins without rebuilding their worlds.**
 
-**English** | [简体中文](https://www.google.com/search?q=./README.zh-CN.md)
+**English** | [简体中文](./README.zh-CN.md)
 
 </div>
 
