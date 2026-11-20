@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_campaign_halt_resolution",
+  "resolved_at_utc": "20261117T155403Z",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "halt_record": "2026-11-17T15:33:38Z slot=manual dependency_download_proxy_unreachable: 127.0.0.1:7890 not responding; 4 bundle preparations failed as worker_spec_invalid since 08:17Z\n2026-11-17T15:45:07Z slot=1 gate_anomaly run=20261117T141943Z-slot-1-pid-364854-b0027\n2026-11-17T15:48:57Z slot=2 gate_anomaly run=20261117T141543Z-slot-2-pid-365015-b0027",
+  "trigger": {
+    "manual_halt": "operator, 2026-11-17T15:33:38Z",
+    "gates": [
+      {
+        "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261117T141943Z-slot-1-pid-364854-b0027.json",
+        "gate_sha256": "56255199e8d7ae69d992fff382ba7cbc135482bce459b85545bd9dd9606cfe53",
+        "status": "anomaly",
+        "reasons": [
+          "pre_dispatch_failed:2"
+        ]
+      },
+      {
+        "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261117T141543Z-slot-2-pid-365015-b0027.json",
+        "gate_sha256": "3ccacf862ad24b1af6bd373faa9b320e441707b0ad60cb57ceffb068c347e183",
+        "status": "anomaly",
+        "reasons": [
+          "pre_dispatch_failed:1"
+        ]
+      }
+    ]
+  },
+  "diagnosis": "The dependency-download proxy 127.0.0.1:7890 (a Windows proxy app reached through WSL mirrored networking, inherited as HTTP(S)_PROXY) stopped responding from about 08:17Z. Bundle preparation for plugins whose bundle was not yet prepared failed after 6-15 minutes and the executor recorded each job as terminal failed / worker_spec_invalid with no Worker run. All five entries had prepared successfully in the previous run. The pre-existing gate did not watch pre-dispatch failures, so one failure per batch passed unnoticed.",
+  "second_defect": "lab/astrbot_census.download_wheels runs `docker run` with subprocess timeout=900; on timeout only the Docker client is killed and the container keeps running, unlabelled, so reconciliation cannot find it. One orphan (bold_kapitsa, bind mount of the deleted .prepare dir of ab-8ab4f5fe3b421e82153af978) was verified and removed at about 15:39Z. The file is pinned by the plan's campaign_sources, so the fix is deferred to the corrected-plan patch run.",
+  "operator_action": "User repaired the proxy at about 15:37Z; downloads verified through it (pypi 200 in 1.6 s).",
+  "verification": "Out-of-queue diagnostic in a scratch bundle root: ab-8ab4f5fe3b421e82153af978 / 我要赤石 prepared 12 wheels including pymupdf in 226 s; the Native side loaded the plugin and replied to 4/4 calls; no containers left.",
+  "decision": "User decision 2026-11-17: keep this run; the gate now halts on any pre-dispatch failure and lists patch_candidates; affected jobs are rerun under a corrected plan at the end.",
+  "gate_change": "pre_dispatch_failed (any occurrence) halts; affected unit listed in patch_candidates. Gate tests 9/9.",
+  "patch_candidates": {
+    "network_bundle_preparation": {
+      "astrbot-diff-626b39cb43fde0a816e53352f69d4a3f339a8a0e44f8f127746ce67ce1b7b426": "ab-b25cf5833460bfd5ff4ac64c / steammod",
+      "astrbot-diff-6c91d6bb8947dd989f80e600ae346704a16485056806d1ea8ec4849303690061": "ab-1b562235de164317a8341da8 / 探针gif",
+      "astrbot-diff-70a57f335eae7766f1f0eb7e29d469705d4cb33bd801d4b17fa6069c77dcdf1d": "ab-3c1fb842b3cc457339acef72 / 图生图",
+      "astrbot-diff-71e6c591c73b80194abcfac93a05f016d88ba2bca998778b543addad575a3fdf": "ab-55f2e5cacbe6ad2c97b77778 / 账号登陆",
+      "astrbot-diff-7217f6a2ec88d4c4cde5c8ae95facd0eed612abff76e34b525df71155ef1438e": "ab-8ab4f5fe3b421e82153af978 / 我要赤石"
+    },
+    "unexplained_pre_dispatch": {
+      "astrbot-diff-15f2509682cd0dfdd9e8d644287b87498b5ff40aa2b499a5219fa52ccdf7136e": "ab-e0a6898bdff9adcec9892bd4 / typst.font (bundle prepared; failed in 5 s on 2026-11-16, before the outage)"
+    }
+  },
+  "batch_rerun": "Deferred to the corrected-plan patch run; terminal rows are not rewritten.",
+  "halt_file_kept_as": "p7-astrbot-command-campaign-depsfix-20261115.sqlite3.halt.resolved-20261117T155403Z"
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_astrbot_campaign_execution_checkpoint",
+  "status": "interrupted",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "plan_sha256": "147c4d7a2c3289e67c5a3a979482d498823249c35a5efef0f23e0af3d82c7f06",
+  "census_sha256": "b5d149ebbfc690a6889c2e32d4443d8a341771a9c1f07ec1965f27c7baa0a9b0",
+  "frozen_denominator": {
+    "snapshot_entries": 3271,
+    "frozen_entries": 3265,
+    "selected_entries": 3265
+  },
+  "campaign_plan_counts": {
+    "load_passed": 3012,
+    "load_failed": 154,
+    "load_skipped": 99,
+    "load_unknown": 0,
+    "inventory_backfill_required": 55,
+    "inventory_backfill_jobs": 55,
+    "inventory_truncated": 0,
+    "observed_commands": 14655,
+    "differential_jobs": 14655,
+    "contract_status": "not_evaluated"
+  },
+  "queue_db": "/home/vegetable/.local/share/ligamina/p7-astrbot-command-campaign-depsfix-20261115.sqlite3",
+  "queue_registration": {
+    "run_id": "p7-09-astra-560efa13259e468f8aea",
+    "manifest_sha256": "560efa13259e468f8aea7821bd4a685ae72004541c8962c35b7c43fcdb2bb5b9",
+    "created": 0,
+    "existing": 14710,
+    "counts": {
+      "queued": 1383,
+      "leased": 2,
+      "passed": 12352,
+      "failed": 6,
+      "skipped": 0,
+      "unknown": 967,
+      "total": 14710
+    }
+  },
+  "queue_counts": {
+    "queued": 1383,
+    "leased": 0,
+    "passed": 12352,
+    "failed": 6,
+    "skipped": 0,
+    "unknown": 969,
+    "total": 14710
+  },
+  "worker_attempt_count": 13343,
+  "contracts": {
+    "evaluated_differential_jobs": 13319,
+    "pending_differential_jobs": 1336,
+    "total_registered_differential_jobs": 14655,
+    "by_contract": {
+      "C1": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      },
+      "C2": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      },
+      "C3": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      },
+      "C4": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      },
+      "C5": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      },
+      "C6": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      },
+      "C7": {
+        "passed": 12364,
+        "failed": 0,
+        "unknown": 955
+      },
+      "C8": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 13319
+      }
+    },
+    "scope_note": "Counts cover registered command-level differential jobs. Load non-passes, skipped identities, and entries without observed command inventories remain represented by the frozen census/plan dispositions without fabricated contract checks.",
+    "acceptance_boundary": "Only directly observed evidence is classified; unrun stimuli remain unknown."
+  },
+  "calls": [
+    {
+      "status": "idle",
+      "unit_id": null,
+      "reason_code": null,
+      "comparison": null,
+      "contract_status": null,
+      "c7_status": null
+    }
+  ],
+  "acceptance_boundary": "Execution and observation comparison only; equivalent is not plugin correctness or support. Unknown remains distinct and cleanup must be reconciled before retry."
+}

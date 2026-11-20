@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_astrbot_campaign_execution_checkpoint",
+  "status": "completed",
+  "run_id": "p7-09-astra-c25b21374dea4e5175fd",
+  "plan_sha256": "7cc1f03efc615c39b7e777a373a2b076e2f1969c0232a6cc4b027acf87d60fa4",
+  "census_sha256": "b5d149ebbfc690a6889c2e32d4443d8a341771a9c1f07ec1965f27c7baa0a9b0",
+  "frozen_denominator": {
+    "snapshot_entries": 3271,
+    "frozen_entries": 3265,
+    "selected_entries": 3265
+  },
+  "campaign_plan_counts": {
+    "load_passed": 3012,
+    "load_failed": 154,
+    "load_skipped": 99,
+    "load_unknown": 0,
+    "inventory_backfill_required": 55,
+    "inventory_backfill_jobs": 55,
+    "inventory_truncated": 0,
+    "observed_commands": 14655,
+    "differential_jobs": 6,
+    "contract_status": "not_evaluated",
+    "selected_jobs": 6
+  },
+  "queue_db": "/home/vegetable/.local/share/ligamina/p7-astrbot-command-campaign-patch-20261120.sqlite3",
+  "queue_registration": {
+    "run_id": "p7-09-astra-c25b21374dea4e5175fd",
+    "manifest_sha256": "c25b21374dea4e5175fd3dc1f83c7ba8f6d3eff6ed0040526ed6bdb1482da5c7",
+    "created": 0,
+    "existing": 6,
+    "counts": {
+      "queued": 6,
+      "leased": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "unknown": 0,
+      "total": 6
+    }
+  },
+  "queue_counts": {
+    "queued": 0,
+    "leased": 0,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "unknown": 1,
+    "total": 6
+  },
+  "worker_attempt_count": 6,
+  "contracts": {
+    "evaluated_differential_jobs": 6,
+    "pending_differential_jobs": 0,
+    "total_registered_differential_jobs": 6,
+    "by_contract": {
+      "C1": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      },
+      "C2": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      },
+      "C3": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      },
+      "C4": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      },
+      "C5": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      },
+      "C6": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      },
+      "C7": {
+        "passed": 5,
+        "failed": 0,
+        "unknown": 1
+      },
+      "C8": {
+        "passed": 0,
+        "failed": 0,
+        "unknown": 6
+      }
+    },
+    "scope_note": "Counts cover registered command-level differential jobs. Load non-passes, skipped identities, and entries without observed command inventories remain represented by the frozen census/plan dispositions without fabricated contract checks.",
+    "acceptance_boundary": "Only directly observed evidence is classified; unrun stimuli remain unknown."
+  },
+  "calls": [
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-25077e0a9b10879bd8e8e0a9f80fc6214bbe5f1a768a4754fdbcc5cff15ee05d",
+      "reason_code": null,
+      "comparison": "non_equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-33bfc1065daa49a11253a55c2bfac3e33ca35a3da2d8d3f77ee20fc52e33b3a8",
+      "reason_code": "worker_observation_incomplete",
+      "comparison": "unknown",
+      "contract_status": "unknown",
+      "c7_status": "unknown"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-4ccde534428c312956710956796b9b665bc1db20bf8978ff2d522cc6659b7c27",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-5b2ea777e226938f062fffe8c1313dfff5d4cd2829fded125adc09e0224faca6",
+      "reason_code": null,
+      "comparison": "nondeterministic",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-8e7dc5e11646b24f277ab3c27f1b68da4806a89a9d49ad69956ae2e95cfaac46",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "finished",
+      "unit_id": "astrbot-diff-d3d82cec8d6528aa21d183071833484b3f051a013fdb31969fc55084ae1d1a27",
+      "reason_code": null,
+      "comparison": "equivalent",
+      "contract_status": "partial",
+      "c7_status": "passed"
+    },
+    {
+      "status": "idle",
+      "unit_id": null,
+      "reason_code": null,
+      "comparison": null,
+      "contract_status": null,
+      "c7_status": null
+    }
+  ],
+  "acceptance_boundary": "Execution and observation comparison only; equivalent is not plugin correctness or support. Unknown remains distinct and cleanup must be reconciled before retry."
+}

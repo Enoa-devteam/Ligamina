@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_astrbot_campaign_batch_gate",
+  "observed_at_utc": "2026-11-17T15:45:07Z",
+  "report": {
+    "path": "outputs/acceptance/p7-p709-astrbot-campaign-execution-batch-20261117T141943Z-slot-1-pid-364854-b0027.json",
+    "sha256": "5bfb87a486ad8526417151ad1d79991c8b0b0bed6712ef11e23cec82331330c6"
+  },
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "differential_jobs": 98,
+  "counts": {
+    "comparison_unknown": 11,
+    "native_all_calls_silent": 11,
+    "pre_dispatch_failed": 2
+  },
+  "rates": {
+    "comparison_unknown": 0.1122,
+    "c7_command_not_listed": 0.0,
+    "federated_all_calls_error": 0.0,
+    "native_all_calls_silent": 0.1122,
+    "worker_not_passed": 0.0,
+    "native_observation_failed": 0.0,
+    "native_all_calls_error": 0.0
+  },
+  "limits": {
+    "comparison_unknown": 0.25,
+    "c7_command_not_listed": 0.05,
+    "federated_all_calls_error": 0.2,
+    "native_all_calls_silent": 0.2,
+    "worker_not_passed": 0.1,
+    "native_observation_failed": 0.0,
+    "native_all_calls_error": 0.05
+  },
+  "status": "anomaly",
+  "reasons": [
+    "pre_dispatch_failed:2"
+  ],
+  "patch_candidates": [
+    "astrbot-diff-71e6c591c73b80194abcfac93a05f016d88ba2bca998778b543addad575a3fdf",
+    "astrbot-diff-7217f6a2ec88d4c4cde5c8ae95facd0eed612abff76e34b525df71155ef1438e"
+  ],
+  "acceptance_boundary": "A passed gate only means no harness anomaly signature crossed its limit; it is not plugin correctness or support."
+}

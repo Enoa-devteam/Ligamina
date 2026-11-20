@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_campaign_halt_resolution",
+  "resolved_at_utc": "20261119T154946Z",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "halt_record": "2026-11-19T15:47:56Z slot=1 executor_failed run=20261119T154805Z-slot-1-pid-968-b0001",
+  "trigger": {
+    "report": "outputs/acceptance/p7-p709-astrbot-campaign-execution-batch-20261119T154805Z-slot-1-pid-968-b0001.json",
+    "report_sha256": "8d7936ae69222517ab0cf6740c8089912d28cb48a7212e992c76bd9e95573e8f"
+  },
+  "diagnosis": "Expected recovery behaviour after the 2026-11-19 WSL I/O failure. Slot 1's executor claimed first: the queue recovered the two expired fenced b0035 leases (lease_expired), marked them unknown/worker_lost and set the run to interrupted, so that executor ended with run status interrupted (exit 3) and its supervisor wrote the halt. Slot 2's executor then ran resume_reconciled_run: both attempts reconciled by exact campaign/job/attempt/generation labels with cleanup_confirmed=true and unresolved_worker_resources=0, both jobs re-queued for attempt 2 of 2, run resumed to running. The two exited b0035 Worker containers were removed by the reconciler.",
+  "classification": "expected fenced-lease recovery; no harness or data defect",
+  "fix": "None needed; slot 1 restarted.",
+  "batch_rerun": "Not required; the two jobs are being retried by the queue (attempt 2 of 2).",
+  "halt_file_kept_as": "p7-astrbot-command-campaign-depsfix-20261115.sqlite3.halt.resolved-20261119T154946Z"
+}

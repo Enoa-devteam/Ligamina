@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_campaign_halt_resolution",
+  "resolved_at_utc": "20261114T234441Z",
+  "run_id": "p7-09-astra-ed2757f945832f49c4b8",
+  "halt_record": "2026-11-14T19:11:38Z slot=1 gate_anomaly run=20261114T180509Z-slot-1-pid-2267073-b0028",
+  "trigger": {
+    "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261114T180509Z-slot-1-pid-2267073-b0028.json",
+    "gate_sha256": "9529b2020c155e33db2de87296212abf156b376d6f23107bcd42972c67514253",
+    "reasons": [
+      "call_signals_missing:1"
+    ]
+  },
+  "diagnosis": "Job astrbot-diff-62395e1970221c48d96cf48446c85a6abcce946cb757e27da92db62c0f9fc20b (ab-f95a046886ecbe3efcf97251 / mcupdate_latest): astrbot_plugin_mc_update builds replies from surrogate escapes such as \\ud83d\\udcf0 in str literals. The Native side's json.dumps(ensure_ascii=False) protocol line raised UnicodeEncodeError (surrogates not allowed), so both passed Native Workers emitted status=failed and lost every reply. The Federated side completed but all 8 calls were silent (no reply delivered): a product finding, not a harness defect.",
+  "classification": "native_harness_defect (1 job so far); federated_product_finding",
+  "fix": "Native side normalizes text as a UTF-16 consumer would (pairs joined, lone surrogates to U+FFFD); encodable text is byte-identical. Commit ac7bbfe on branch codex/p709-native-surrogates, intentionally not applied to this run because the plan pins harness source hashes.",
+  "decision": "User decision 2026-11-15: resume this run unchanged; the gate tolerates this signature up to 1% per batch and lists patch_candidates; after the campaign, only those jobs are rerun under a corrected plan.",
+  "reevaluation": {
+    "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-regate-20261114T180509Z-slot-1-pid-2267073-b0028.json",
+    "gate_sha256": "5734ec8c0df96a98f083989ac844ea52477c1962b5ce32bad54b1f41aa0f1ce7",
+    "status": "passed"
+  },
+  "batch_rerun": "Deferred to the corrected-plan patch run; the terminal row (unknown) is not rewritten.",
+  "patch_candidates": [
+    "astrbot-diff-62395e1970221c48d96cf48446c85a6abcce946cb757e27da92db62c0f9fc20b"
+  ],
+  "halt_file_kept_as": "p7-astrbot-command-campaign-toolruntime-20261113.sqlite3.halt.resolved-20261114T234441Z"
+}

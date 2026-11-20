@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_campaign_halt_resolution",
+  "resolved_at_utc": "20261119T154805Z",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "halt_record": "2026-11-19T15:34:14Z slot=1 executor_failed run=20261119T153343Z-slot-1-pid-987-b0001\n2026-11-19T15:34:15Z slot=2 executor_failed run=20261119T153258Z-slot-2-pid-1113-b0001",
+  "context": "2026-11-19 ~13:31Z: C: filled (3 GB free), so the WSL Ubuntu ext4.vhdx (217.8 GB on C:) could not grow and every WSL process failed with I/O errors; both b0035 batches died with two jobs leased. With user authorization: WSL shut down; superseded bundle caches deleted by the user (census bundles 46 GB, toolruntime 15 GB, bundlefix 8.2 GB, first-queue 133 MB; no code or docs referenced them; all queue databases kept); fstrim; Optimize-VHD -Mode Full run by the user as administrator: 217.8 GB -> 112.8 GB, C: free 108.8 GB. Queue integrity_check=ok afterwards. A sparse-VHD attempt was reverted (experimental, reclaimed nothing).",
+  "trigger": "Both resumed executors stopped before claiming: recomputed campaign identity or jobs differ from the frozen plan.",
+  "diagnosis": "The plan binds an admission-environment fingerprint. After the WSL restart Docker reported mem_total_bytes 32272928768 instead of 32272924672 (one 4 KiB page); every other fact matched. No job was claimed or changed.",
+  "fix": "No code change (the fingerprint code is pinned by campaign_sources). WSL was restarted until Docker again reported the original 32272924672 (third boot); supervisors restarted in that session. The two expired b0035 leases are recovered by the executor's fenced-lease reconciliation on the first claim.",
+  "follow_up": "Round or drop mem_total_bytes in the fingerprint in the corrected plan used for the patch run.",
+  "batch_rerun": "Not required: the failed b0001 attempts claimed no jobs.",
+  "halt_file_kept_as": "p7-astrbot-command-campaign-depsfix-20261115.sqlite3.halt.resolved-20261119T154805Z"
+}

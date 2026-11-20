@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_campaign_halt_resolution",
+  "resolved_at_utc": "20261116T000901Z",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "halt_record": "2026-11-15T19:31:55Z slot=1 gate_anomaly run=20261115T175321Z-slot-1-pid-3584499-b0005",
+  "trigger": {
+    "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261115T175321Z-slot-1-pid-3584499-b0005.json",
+    "gate_sha256": "2aaa367b64af8f787f31e028fe597d9455aaee06df853d7a01fe00bc3ffc8c9c",
+    "reasons": [
+      "non_terminal_queue_rows:1"
+    ]
+  },
+  "diagnosis": "Job ab-f004240385903168d9925de1 / 创建卡片 (its Native Workers hit the 420 s Worker timeout, as on 2026-11-13) was the batch's last job. Attempt 1 ended 19:31:55 as a retryable unknown, so the queue returned it to queued (attempt 1 of 2); the gate ran in the same second and saw a non-terminal row. Slot 2 ran attempt 2 from 19:32:54 to 19:51:55, again unknown with both Native Workers timed out.",
+  "classification": "gate_rule_too_strict; no harness or data defect",
+  "fix": "A report job whose row is queued with attempts left (attempts_used >= 1 and < max_attempts) counts as retry_pending; leased or otherwise stuck rows remain a hard anomaly. Gate tests 8/8.",
+  "reevaluation": {
+    "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-regate-20261115T175321Z-slot-1-pid-3584499-b0005.json",
+    "gate_sha256": "64aebaf300b0c42d5c8117c7b72650b5e53e0a25b286bb21809701bbb9bd174a",
+    "status": "passed",
+    "note": "At re-evaluation the row is terminal (attempt 2); at gate time it was queued at attempt 1 of 2, which the corrected rule also classifies as retry_pending."
+  },
+  "batch_rerun": "Not required: queue results are correct as recorded; terminal rows are never rewritten.",
+  "halt_file_kept_as": "p7-astrbot-command-campaign-depsfix-20261115.sqlite3.halt.resolved-20261116T000901Z"
+}

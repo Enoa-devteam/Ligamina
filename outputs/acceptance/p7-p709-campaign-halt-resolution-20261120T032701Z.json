@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p709_campaign_halt_resolution",
+  "resolved_at_utc": "20261120T032701Z",
+  "run_id": "p7-09-astra-560efa13259e468f8aea",
+  "halt_record": "2026-11-20T02:37:28Z slot=1 gate_anomaly run=20261120T020711Z-slot-1-pid-8351-b0009\n2026-11-20T02:37:40Z slot=2 gate_anomaly run=20261120T021912Z-slot-2-pid-1105-b0009",
+  "trigger": [
+    {
+      "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261120T020711Z-slot-1-pid-8351-b0009.json",
+      "gate_sha256": "4a6d7b820b30e5dfa75d02a7337e50eecc204cbfcd3a7915510db63823ad5798",
+      "reasons": [
+        "comparison_unknown:33/45>0.25",
+        "native_all_calls_silent:33/45>0.2"
+      ],
+      "differential_jobs": 45
+    },
+    {
+      "gate": "outputs/acceptance/p7-p709-astrbot-campaign-batch-gate-20261120T021912Z-slot-2-pid-1105-b0009.json",
+      "gate_sha256": "83e06e684612e3eaed139c67204c6e09e0bda0133bdb58f44fc5b0ce03382ac9",
+      "reasons": [
+        "comparison_unknown:26/27>0.25",
+        "native_all_calls_silent:26/27>0.2"
+      ],
+      "differential_jobs": 27
+    }
+  ],
+  "diagnosis": "The two final, partial batches (45 and 27 jobs) were dominated by one plugin, ab-03809f45e60d61212925861e (astrbot_plugin_novel 3.0.0, a QQ-group collaborative-writing plugin): 50 of its 55 differential jobs are silent on Native and on Federated. Its _get_ctx() returns None when event.get_group_id() is empty, so its commands do nothing in a private chat, and both campaign sides dispatch in private-chat context by design. An out-of-queue Native rerun of 小说.状态 loaded the plugin (dependencies installed, no import errors) and produced no replies, matching the queue. Silence is symmetric across sides, unlike the Native-only harness defect the native_all_calls_silent signal was added for.",
+  "classification": "plugin behaviour (group-only commands under the private-chat harness); no harness or data defect",
+  "fix": "None. The queue had already drained; every job is terminal and the run state is completed.",
+  "denominator_note": "The queue holds 14,992 jobs: all 14,710 planned jobs plus 282 differential jobs that the executor's enqueue_followups registered from 45 of the 55 backfilled inventories (2026-11-20 00:17-00:20Z), because inventory jobs sort after differential jobs and ran last.",
+  "batch_rerun": "Not required; terminal rows are never rewritten.",
+  "halt_file_kept_as": "p7-astrbot-command-campaign-depsfix-20261115.sqlite3.halt.resolved-20261120T032701Z"
+}
