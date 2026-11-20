@@ -16,6 +16,7 @@
 - [outputs/acceptance/phase4-p404-signed-runtime-20261028/README.md](../../outputs/acceptance/phase4-p404-signed-runtime-20261028/README.md)
 - [outputs/acceptance/windows-sandbox/README.md](../../outputs/acceptance/windows-sandbox/README.md)
 - [outputs/compat/compatibility-matrix-v1.md](../../outputs/compat/compatibility-matrix-v1.md)（自动生成的当前兼容性矩阵摘要，P6-04）
+- [outputs/compat/compatibility-matrix-v2.md](../../outputs/compat/compatibility-matrix-v2.md)（自动生成的兼容性矩阵 v2 摘要：discovery、differential、contract、stateful 与覆盖度，P7-10）
 
 ## 设计记录
 

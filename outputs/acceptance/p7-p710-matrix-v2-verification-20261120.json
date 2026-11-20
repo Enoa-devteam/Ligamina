@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "p7_p710_matrix_v2_verification",
+  "recorded_at_utc": "2026-11-20",
+  "branch": "codex/p7-10-matrix-v2",
+  "matrix": {
+    "json": {"path": "outputs/compat/compatibility-matrix-v2.json", "sha256": "9dfbc212b29dbb4250697ced32a3e3bed5236779eaff15e0cd6cb99ccf6386c4"},
+    "markdown": "outputs/compat/compatibility-matrix-v2.md",
+    "schema": "contracts/lab/compat/v2/compatibility-matrix.schema.json",
+    "builder": "lab/compat_matrix_v2.py",
+    "base_matrix": {"path": "outputs/compat/compatibility-matrix-v1.json", "sha256": "40bc6559dc6c360857f919dc43f6060732041820cc1bd479f6449ad1bb15d787",
+                    "note": "Same SHA-256 the accepted P7-04 pilot recorded as its source matrix on 2026-11-12; v1 and its schema are unchanged."},
+    "entries": 3383,
+    "sources": 11
+  },
+  "evidence_added": {
+    "astrbot_results_export": {
+      "path": "outputs/acceptance/p7-p709-astrbot-campaign-results-depsfix-20261120.json",
+      "sha256": "8e41b022b05408a7ee614b33a9847333abb4630e2f027d7f7bb305cdd89e5bb2",
+      "why": "The committed batch reports list outcomes by job ID only, and the 282 follow-up jobs are not in the plan; this read-only projection of the drained queue maps every job to its plugin and command. No plugin output is exported.",
+      "jobs": 14992
+    },
+    "astrbot_patch_export": {
+      "path": "outputs/acceptance/p7-p709-astrbot-campaign-results-patch-20261120.json",
+      "sha256": "f0861256b8021acc93580776d93711fcbac4ec708bdd8ae4973c8d8da3b0e3d1",
+      "jobs": 6
+    },
+    "exporter": "scripts/p7-p709-campaign-export.py"
+  },
+  "reconciliation": {
+    "astrbot_discovery": "3,012 verified + 253 skipped (load failed or skipped) = 3,265 frozen entries; 6 non-frozen catalog entries untested",
+    "astrbot_differential": "14,937 commands exercised = 14,655 planned + 282 follow-ups; 10,082 equivalent, 653 non-equivalent, 3,043 nondeterministic, 1,159 unknown; the 6 pre-dispatch failures are replaced by their patch-run results",
+    "astrbot_contract": "only C7 evaluated: 13,792 passed, 0 failed, 1,145 unknown",
+    "koishi_nonebot": "177 commands from the accepted 30+30 pilot: 121 equivalent, 34 non-equivalent, 2 nondeterministic, 20 unknown, equal to the pilot summary",
+    "stateful": "60 entries of the P7-07 cohort, all unknown or skipped as recorded",
+    "build_guards": "The build refuses an export that differs from the final checkpoint's queue counts, a patch job without a failed original, or a failed original without a patch job."
+  },
+  "criteria": {
+    "v1_matrix_and_schema_unchanged": "outputs/compat/compatibility-matrix-v1.* and contracts/lab/compat/v1 are not modified; v2 binds v1 by SHA-256 and validate fails if it differs",
+    "every_v2_conclusion_cites_evidence_and_hash": "schema requires at least one evidence item and a scope per claim; tests check every reference against the recorded source hashes",
+    "check_fails_when_evidence_changes": "test_check_fails_when_any_evidence_file_changes: one extra byte in an evidence file makes check report the matrix stale (exit 1)",
+    "no_support_list_added": "compatibility guide and v2 Markdown state the matrix is an evidence index; README and the support scope are unchanged; no unknown or nondeterministic outcome is promoted"
+  },
+  "verification": {
+    "matrix_tests": "lab.tests.test_compat_matrix_v2 10/10 and lab.tests.test_compat_matrix (v1) pass",
+    "export_tests": "lab.tests.test_p7_campaign_export 2/2",
+    "check": "python -m lab.compat_matrix_v2 check -> ok (3,383 entries, 11 sources); python -m lab.compat_matrix check -> ok",
+    "lab_suite": "454 tests OK (WSL Ubuntu 24.04)",
+    "ci": "scripts/phase3-linux-self-test.sh runs test_compat_matrix_v2 and python -m lab.compat_matrix_v2 check after the v1 check"
+  }
+}
