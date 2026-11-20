@@ -1,110 +1,169 @@
+<div align="center">
+
 # Ligamina
 
-**English** | [简体中文](README.zh-CN.md)
+**One runtime, multiple chatbot plugin ecosystems. Reuse native plugins without rebuilding their worlds.**
 
-Ligamina runs chat-bot plugins from **Koishi**, **NoneBot** and **AstrBot** unmodified, inside their native frameworks, and makes them usable from **any bot or AI coding agent** through one MCP-style interface. A Rust Core supervises one isolated Host process per framework; plugins keep their own command parsing, middleware, permissions and storage.
+**English** | [简体中文](https://www.google.com/search?q=./README.zh-CN.md)
 
-It is also a compatibility lab: official plugin catalogs are frozen with our own hashes, plugins are tested in OS-isolated Workers, and every result is bound to an exact plugin version, artifact hash, dependency lock and test case.
+</div>
 
-## How it works
+## Overview
 
-```text
- Claude Code / other MCP clients        Bots that want group messages to reach plugins
- LLM-based bots (e.g. Stella)           (any OneBot v11 implementation, other platforms)
-            |  MCP tools                              |  events + Gateway (HTTP)
-            v                                         v
-   +---------------------------- Rust Core ----------------------------+
-   |  command catalog · tool sessions · event router · operation ledger |
-   +------+----------------------+----------------------+-------------+
-          | NDJSON stdio         |                      |
-   Koishi Host            NoneBot Host           AstrBot Host
-   (@koishijs/core)       (nonebot2 2.5.0)       (astrbot 4.29.1)
-          |                      |                      |
-   native plugins         native plugins         native plugins
+[Ligamina](https://github.com/Enoa-devteam/Ligamina) is a multi-framework chatbot plugin runtime and compatibility lab designed around a single principle:
+
+> *One runtime, multiple chatbot plugins ecosystems. Reuse native plugins without rebuilding their worlds.*
+
+A **Rust Core** supervisor orchestrates isolated, framework-native host processes so that **Koishi**, **NoneBot**, and **AstrBot** plugins run directly inside their original frameworks—without modifying plugin source code and while preserving native command parsing, middleware, permissions, and storage.
+
+Alongside the runtime, Ligamina ships a reproducible **Compatibility Lab** that locks official plugin catalogs by hash (frozen catalogs), executes install, load, and behavioral verification inside network-disabled OS-isolated workers (such as Linux Docker and Windows Sandbox), and binds every report entry to exact plugin versions, artifact hashes, lockfiles, and test cases.
+
+## Core Usage Modes
+
+1. **Plugins as Tools (MCP Mode)**  
+   Exposes plugin commands across all supported frameworks through a unified Model Context Protocol (`2025-11-25`) server using the `cmd.<host>.<command>` naming convention (alongside `_ligamina_ping` for health checks). Each invocation runs in a virtual private chat session with a 30-second execution deadline (`TOOL_DEADLINE`), ready for AI coding assistants and any MCP-compatible client.
+2. **Plugins for Bots (Gateway Mode)**  
+   Runs as a background `daemon` with an Event Router and HTTP Gateway (such as OneBot v11 Gateway) to ingest chat events and route them to the target framework host.
+
+## Architecture
+
+The Rust Core communicates with every language host strictly via **NDJSON over stdio**, keeping cross-language boundaries explicit and reserving `stdout` exclusively for protocol frames:
+
+```mermaid
+flowchart LR
+    MCP[MCP Client / AI Assistant] -->|MCP 2025-11-25 over stdio| CLI
+    GW[Chat Platform / OneBot v11 Gateway] -->|HTTP| CLI
+
+    subgraph Core["Rust Core (ligamina-cli / ligamina-core)"]
+        CLI[CLI & Daemon / Axum HTTP & rmcp]
+        CMD[Command Catalog & Schema Parser]
+        ROUTER[Event Router & CapabilityBroker / Policy]
+        STORE[SQLite State & Operation Ledger]
+        SUP[Host Process Supervisor]
+        CLI --> CMD
+        CLI --> ROUTER
+        ROUTER --> STORE
+        ROUTER --> SUP
+    end
+
+    SUP <-->|NDJSON over stdio| KH[Koishi Host\nNode.js / TypeScript]
+    SUP <-->|NDJSON over stdio| NB[NoneBot Host\nPython / uv]
+    SUP <-->|NDJSON over stdio| AB[AstrBot Host\nPython / uv]
 ```
 
-- **Plugins as tools.** Each Host reports the commands its plugins registered. Core lists them as MCP tools named `cmd.<host>.<command>`. A tool call runs in a fresh virtual private conversation through the framework's normal dispatch, and the plugin's replies come back as the tool result, with no Gateway or platform account involved.
-- **Plugins for bots.** A bot that owns a platform connection submits events and runs a Gateway that performs the plugins' outgoing messages. The reference [OneBot v11 Gateway](clients/reference/src/onebot-gateway.ts) works with any OneBot implementation. Ligamina contains no bot-specific code ([ADR 0002](docs/adr/0002-plugins-as-tools.md)).
+**Core Rust Subsystems** ([crates/ligamina-core](https://github.com/Enoa-devteam/Ligamina/tree/main/crates/ligamina-core) & [crates/ligamina-cli/src](https://github.com/Enoa-devteam/Ligamina/tree/main/crates/ligamina-cli/src)):
 
-## Status
+- **`runtime.rs` & `supervisor.rs`**: Runtime lifecycle orchestration and host subprocess startup, monitoring, and restart management.
+- **`broker.rs` & `policy.rs`**: `CapabilityBroker` mediation and security/permission policy enforcement.
+- **`commands.rs` & `command_args.rs`**: Unified cross-host command catalog and structured argument schema parsing.
+- **`router/`, `store/`, `transport/`, `deployment/`, `platform.rs`**: Event routing, bundled SQLite (`rusqlite`) state & Operation Ledger persistence, NDJSON stdio transport, and isolated deployment management.
+- **`ligamina-contracts` & `contracts/`**: Shared cross-language protocol contracts and JSON Schemas.
 
-| Area | State |
-| --- | --- |
-| Core, Koishi and NoneBot Hosts, HTTP and MCP | Working; Phase 1 acceptance passed (4 exact plugin versions behavior-verified) |
-| MCP command tools (Koishi, NoneBot, AstrBot) | Working; frozen catalog plugins passed 18/18 tool-level runs in network-disabled Linux Workers |
-| AstrBot Host | Working on the unmodified framework; event-path parity tested; market catalog frozen (3,265 plugins); install/load pilot 21/24 loaded in network-disabled Linux Workers; tool-level behavior of 3 market plugins passed 24/24 runs ([plan](docs/plans/2026-11-07-phase-5-astrbot-host.md)) |
-| Catalog-wide compatibility | Not claimed. Census and recovery ledgers are closed, but behavior and automation gates remain blocked (details in [简体中文](README.zh-CN.md)) |
-| Real-platform delivery | Blocked: the tool path works up to the bot, but the first test bot's own delivery check drops tool replies (reported to that bot) |
-| Windows Sandbox Enforcement | Blocked on a signing identity accepted by the current App Control policy |
+## Supported Native Hosts
 
-Current details: [progress](progress.md), [feature list](feature_list.json), [handoff](session-handoff.md).
+| Host | Directory | Runtime & Locked Stack | Worker Entrypoint | Native Event Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **Koishi** | [hosts/koishi](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts/koishi) | Node.js `24.20.0` (recommended), TypeScript, `@koishijs/core` `4.18.11`, Satori APIs, `@minatojs/driver-sqlite` `4.7.0` | `node dist/worker.js` | Wraps incoming events into native Satori `Session` objects via `Bot.session()`, dispatches them through `Bot.dispatch()`, and maps typed arguments and options to MCP tool fields. |
+| **NoneBot** | [hosts/nonebot](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts/nonebot) | Python `3.12.14`, `uv`, `nonebot2` `2.5.0`, `nonebot-adapter-onebot` `2.4.6` | `uv run --locked --python 3.12.14 python -m ligamina_nonebot.worker` | Receives Ligamina event envelopes over stdio and invokes `Adapter.json_to_event` and `Bot.handle_event` directly to drive `on_command` / `on_shell_command` matchers without opening a real OneBot network connection. |
+| **AstrBot** | [hosts/astrbot](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts/astrbot) | Python `3.12.14`, `uv`, unmodified `astrbot==4.29.1` (`AGPL-3.0-or-later`) | Built-in stdio worker lifecycle | Points `ASTRBOT_ROOT` and working directory to the host data directory in `ligamina_astrbot/lifecycle.py` before importing AstrBot; runs the full lifecycle via a bridge platform adapter while blocking built-in admin commands. |
 
-## Quick start
+## Current Status & Compatibility Matrix
 
-Build the Core and the Hosts you need:
+Ligamina only claims capabilities backed by reproducible verification:
 
-```powershell
+| Area | Status | Notes & Evidence |
+| :--- | :--- | :--- |
+| **Rust Core, Koishi / NoneBot Hosts, HTTP & MCP** | Working | Passed Phase 1 acceptance. |
+| **MCP Command Tools (Koishi, NoneBot, AstrBot)** | Working | **18/18** tool-level tests passing inside a network-disabled Linux worker. |
+| **AstrBot Host** | Pilot Verified | Runs on unmodified `astrbot 4.29.1`; **3,265** catalog plugins frozen, **21/24** pilot install/load succeeded, **24/24** tool-level behavioral tests passing. |
+| **Catalog-wide Compatibility** | Unclaimed | Full-catalog compatibility is not yet claimed. |
+| **Real-platform Delivery** | Unclaimed | Production live-platform delivery is not yet claimed. |
+| **Windows Sandbox Enforcement** | Blocked / In Progress | Currently blocked and not yet enforced as a production path. |
+
+## Security Model & Isolation Boundaries
+
+- **Reserved Tool Accounts**: MCP tool sessions run under reserved accounts that are strictly prohibited from Gateway ingress or authorization flows.
+- **No Automatic Replay on Ambiguity**: Deliveries with uncertain outcomes stay in an `unknown` state and are never automatically replayed.
+- **Offline Hash-Pinned Execution**: Third-party plugins are installed and tested only inside hash-pinned, network-disabled OS-isolated workers.
+- **Secret Hygiene & Clean `stdout`**: Tokens are never written to logs or reports, and `stdout` is strictly reserved for NDJSON protocol messages.
+- **Loopback-Only Admin Endpoints**: `status` and `doctor` commands accept loopback HTTP URLs only (`http://127.0.0.1:<port>`) and require `LIGAMINA_ADMIN_TOKEN`.
+
+## Quick Start
+
+### 1. Prerequisites
+
+- **Rust**: `1.97.1` (pinned in [rust-toolchain.toml](https://github.com/Enoa-devteam/Ligamina/blob/main/rust-toolchain.toml) with `rustfmt` and `clippy`, Rust Edition `2024`)
+- **Node.js & npm**: `24.20.0` recommended (for the Koishi host)
+- **Python & uv**: `3.12.14` with `uv` (for the NoneBot and AstrBot hosts)
+
+### 2. Build Core & Sync Hosts
+
+```bash
+# 1. Build the Rust CLI and core runtime
 cargo build -p ligamina-cli --locked
-cd hosts/koishi; npm ci; npm run build; cd ../..
+
+# 2. Install and build the Koishi host
+cd hosts/koishi && npm ci && npm run build
+cd ../..
+
+# 3. Sync the NoneBot host Python environment
 uv sync --locked --project hosts/nonebot --python 3.12.14
+
+# 4. Sync the AstrBot host Python environment
 uv sync --locked --project hosts/astrbot --python 3.12.14
 ```
 
-Start the daemon with a config file (`target/debug/ligamina-cli daemon --config daemon.json`). A minimal config exposing Koishi plugin commands as tools:
+### 3. CLI & MCP Usage
 
-```json
-{
-  "listen": "127.0.0.1:8765",
-  "database_path": "data/core.sqlite3",
-  "admin_token": "<at least 24 random bytes>",
-  "mcp_client_id": "agent",
-  "clients": [{ "id": "agent", "token": "<at least 24 random bytes>" }],
-  "gateways": [{ "id": "unused", "client_id": "agent", "account_id": "10001", "registration_token": "<at least 32 random bytes>" }],
-  "hosts": [{ "id": "koishi", "program": "node", "args": ["dist/worker.js"], "current_dir": "hosts/koishi",
-               "environment": { "LIGAMINA_KOISHI_PLUGINS": "<plugin import specifiers>" } }],
-  "command_tools": { "enabled": true, "allow": ["cmd.koishi.*"] }
-}
+Implemented in [crates/ligamina-cli/src/main.rs](https://github.com/Enoa-devteam/Ligamina/blob/main/crates/ligamina-cli/src/main.rs) and [crates/ligamina-cli/src/mcp.rs](https://github.com/Enoa-devteam/Ligamina/blob/main/crates/ligamina-cli/src/mcp.rs):
+
+```bash
+# Default mode (no subcommand): start the MCP server over stdio (MCP 2025-11-25)
+# Exposes _ligamina_ping and cmd.<host>.<command> tools (30s TOOL_DEADLINE)
+ligamina-cli
+
+# Start the background daemon and HTTP Gateway with a config file
+ligamina-cli daemon --config <path.json>
+
+# Inspect runtime status (loopback HTTP only; requires LIGAMINA_ADMIN_TOKEN)
+LIGAMINA_ADMIN_TOKEN=<your-token> ligamina-cli status --url http://127.0.0.1:<port>
+
+# Run health diagnostics (loopback HTTP only; requires LIGAMINA_ADMIN_TOKEN)
+LIGAMINA_ADMIN_TOKEN=<your-token> ligamina-cli doctor --url http://127.0.0.1:<port>
+
+# Parse and print compatibility/gate test reports
+ligamina-cli report <report.json> --format text --gate compatibility
+# Options: --format json|text|ndjson, --gate completion|automation|compatibility
 ```
 
-Command tools are off unless `command_tools.enabled` is set. The daemon currently requires one Gateway entry even when only MCP is used. Connect an MCP client, for example Claude Code:
+### 4. Verification Scripts
+
+Use [init.ps1](https://github.com/Enoa-devteam/Ligamina/blob/main/init.ps1) or `init.sh` in `docs` mode (`node scripts/check-docs.mjs`) or `full` mode (also runs `scripts/check.ps1` for full runtime verification):
+
+```bash
+# Linux / macOS
+bash init.sh docs
+bash init.sh full
+```
 
 ```powershell
-claude mcp add --transport http plugins http://127.0.0.1:8765/mcp --header "Authorization: Bearer <client token>"
+# Windows PowerShell
+pwsh -NoProfile -File init.ps1 -Mode docs
+pwsh -NoProfile -File init.ps1 -Mode full
 ```
 
-Tool input is raw text (`{"arguments": "..."}`) or, for Koishi and AstrBot commands, typed fields generated from the command's declaration. Bot integration through events and a Gateway is described in [Bot and agent integration](docs/guides/bot-integration.md).
+## Repository Structure
 
-## Hosts
-
-| Host | Framework | Notes |
-| --- | --- | --- |
-| [Koishi](hosts/koishi/README.md) | `@koishijs/core` 4.18.11 (Node 24.20.0) | Native Session dispatch; typed arguments and options as tool fields |
-| [NoneBot](hosts/nonebot/README.md) | `nonebot2` 2.5.0, OneBot v11 adapter (Python 3.12.14) | `on_command` / `on_shell_command` matchers; command prefix from the bot's config |
-| [AstrBot](hosts/astrbot/README.md) | `astrbot` 4.29.1, AGPL-3.0, unmodified (Python 3.12.14) | Headless real lifecycle with a bridge platform adapter; built-in admin commands never exposed |
-
-## Safety model
-
-- Tool sessions use reserved accounts that no grant or Gateway may use; their replies are completed inside Core and never reach the operation ledger or a platform.
-- Uncertain deliveries stay `unknown` and are never replayed automatically.
-- Third-party catalog plugins run only in admitted OS-isolated Workers (network-disabled Linux Docker, Windows Sandbox); plugin archives are pinned by our own hashes.
-- Logs and reports never contain tokens, and stdout of every Host is reserved for the NDJSON protocol.
-
-## Verify
-
-```powershell
-pwsh -NoProfile -File init.ps1 -Mode docs   # documentation, evidence and tracker checks
-pwsh -NoProfile -File init.ps1 -Mode full   # locked builds, all test suites, smoke tests
-```
-
-On Linux/WSL use `bash init.sh docs` or `bash init.sh full`. See [development and verification](docs/guides/development.md).
-
-## Documentation
-
-- [Documentation map](docs/README.md): architecture, development, compatibility, reporting, integration.
-- [Evidence index](docs/evidence/README.md): acceptance reports and historical decisions.
-- Plans: [Phase 4 behavior readiness](docs/plans/2026-10-26-phase-4-behavior-readiness.md), [plugin tool surface](docs/plans/2026-11-07-plugin-tool-surface.md), [Phase 5 AstrBot Host](docs/plans/2026-11-07-phase-5-astrbot-host.md).
-- Agent entry point: [AGENTS.md](AGENTS.md).
+| Path | Description |
+| :--- | :--- |
+| [crates/](https://github.com/Enoa-devteam/Ligamina/tree/main/crates) | Rust workspace: [ligamina-core](https://github.com/Enoa-devteam/Ligamina/tree/main/crates/ligamina-core), [ligamina-cli](https://github.com/Enoa-devteam/Ligamina/tree/main/crates/ligamina-cli/src), and `ligamina-contracts` |
+| `contracts/` | Cross-language protocol contracts and schemas |
+| [hosts/](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts) | Native framework hosts: [koishi](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts/koishi), [nonebot](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts/nonebot), and [astrbot](https://github.com/Enoa-devteam/Ligamina/tree/main/hosts/astrbot) |
+| `catalogs/`, `recipes/`, `lab/`, `config/lab/`, `outputs/` | Compatibility Lab frozen catalogs, test recipes, isolation harness, lab configs, and outputs |
+| [samples/](https://github.com/Enoa-devteam/Ligamina/tree/main/samples) | Sample fixtures (`fixtures/`), offline service profiles (`profiles/`), and `third-party.lock.json` |
+| `clients/reference/`, `deploy/`, `docs/`, `scripts/` | Reference clients, deployment configs, documentation, and automation scripts |
+| [Cargo.toml](https://github.com/Enoa-devteam/Ligamina/blob/main/Cargo.toml) & [rust-toolchain.toml](https://github.com/Enoa-devteam/Ligamina/blob/main/rust-toolchain.toml) | Rust workspace manifest (`tokio`, `axum`, `rmcp`, `rusqlite`, `jsonschema`, etc.) and pinned toolchain |
 
 ## License
 
-See [LICENSE](LICENSE) (GNU AGPL-3.0). The AstrBot Host depends on AstrBot (AGPL-3.0-or-later) as an unmodified, separately run dependency.
+This repository is licensed under **AGPL-3.0** as declared in the root `LICENSE` file (note that `hosts/astrbot` also integrates `astrbot==4.29.1`, licensed under `AGPL-3.0-or-later`).
