@@ -186,6 +186,11 @@ def main() -> int:
         previous = {**previous, "run_id": plan["run_id"], "plan_sha256": verified_sha(root / args.new_run_plan),
                     "plan_path": args.new_run_plan, "census_sha256": plan["inputs"]["census_report_sha256"],
                     "worker_image": plan["inputs"]["worker_image"], "completed_bounded_batches": [],
+                    "registered_jobs": {
+                        "inventory_backfill": sum(job["stage"] == "inventory" for job in plan["jobs"]),
+                        "differential": sum(job["stage"] == "differential" for job in plan["jobs"]),
+                        "total": len(plan["jobs"])},
+                    **({"job_selection": plan["inputs"]["job_selection"]} if plan["inputs"].get("job_selection") else {}),
                     "queue": {"path": args.queue_db},
                     "next": "Continue the same queue with fresh exact-image probe/admission per bounded batch; "
                             "halt on any batch gate anomaly and rerun affected jobs only under a corrected plan."}
@@ -277,8 +282,9 @@ def main() -> int:
         ],
     })
     if checkpoint["status"] == "queue_terminal" and not args.superseded_by:
-        checkpoint["next"] = ("Queue drained: every job is terminal. Rerun the listed pre-dispatch failures under a "
-                              "corrected plan; do not resume this queue.")
+        checkpoint["next"] = (("Queue drained: every job is terminal. Rerun the listed pre-dispatch failures under a "
+                               "corrected plan; do not resume this queue.") if aggregate["pre_dispatch_failures"] else
+                              "Queue drained: every job is terminal and none failed before dispatch; nothing to rerun.")
     if args.superseded_by:
         checkpoint["status"] = "superseded"
         checkpoint["superseded"] = {"by_plan": args.superseded_by, "by_plan_sha256": verified_sha(root / args.superseded_by),
