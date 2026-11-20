@@ -4,7 +4,7 @@
 
 **多框架聊天机器人插件运行时与兼容性测试实验室**
 
-[English](https://www.google.com/search?q=./README.md) | **简体中文**
+[English](./README.md) | **简体中文**
 
 </div>
 
