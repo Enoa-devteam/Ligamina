@@ -59,7 +59,9 @@ def batch_entry(root: Path, rel: str, run_id: str) -> tuple[dict, list[dict]]:
         raise CheckpointError(f"unexpected report kind: {rel}")
     if report.get("run_id") != run_id:
         raise CheckpointError(f"report belongs to run {report.get('run_id')}, not {run_id}: {rel}")
-    calls = report["calls"]
+    # An idle call (no unit_id) only marks that the executor found the queue empty; it is not a job.
+    idle = [c for c in report["calls"] if c.get("status") == "idle" and not c.get("unit_id")]
+    calls = [c for c in report["calls"] if not (c.get("status") == "idle" and not c.get("unit_id"))]
     comparison = Counter(c["comparison"] for c in calls if c.get("comparison"))
     c7 = Counter(c["c7_status"] for c in calls if c.get("c7_status"))
     inputs = []
@@ -85,6 +87,7 @@ def batch_entry(root: Path, rel: str, run_id: str) -> tuple[dict, list[dict]]:
         "comparison": dict(sorted(comparison.items())),
         "C7": dict(sorted(c7.items())),
         "queue_counts_at_report": report["queue_counts"],
+        **({"idle_markers": len(idle)} if idle else {}),
         "inputs": inputs,
     }
     return entry, calls
@@ -241,6 +244,13 @@ def main() -> int:
         "reported_worker_runs_cleanup_confirmed": runs_cleanup,
     }
     cmp_ = aggregate["comparison"]
+    planned = (previous.get("registered_jobs") or {}).get("total")
+    total = queue["conserved_total"]
+    if planned and total != planned:
+        denominator_text = (f"The queue conserves {total:,} jobs: the {planned:,} planned jobs plus {total - planned:,} "
+                            "follow-up differential jobs registered from backfilled inventories. ")
+    else:
+        denominator_text = f"The campaign denominator remains fixed at {total:,}. "
     boundary = (
         f"This checkpoint accounts for {aggregate['calls']} finished command-job calls from {len(batches)} "
         f"sidecar-verified bounded reports ({len(unit_ids)} unique jobs). {sum(cmp_.values())} calls have Native×2/Federated comparisons "
@@ -249,8 +259,10 @@ def main() -> int:
         f"and all {runs_cleanup} recorded Worker runs have confirmed cleanup. "
         + ("One pre-dispatch worker_spec_invalid failure is kept separate. " if aggregate["pre_dispatch_failures"] == 1
            else f"{aggregate['pre_dispatch_failures']} pre-dispatch failures are kept separate. ")
-        + f"The campaign denominator remains fixed at {queue['conserved_total']:,}; this is execution evidence only, "
-        "not plugin correctness or support."
+        + denominator_text
+        + (f"{aggregate['terminal_rows_without_report']} terminal queue rows have no batch report. "
+           if aggregate['terminal_rows_without_report'] else "")
+        + "This is execution evidence only, not plugin correctness or support."
     )
     checkpoint = dict(previous)
     checkpoint.update({
@@ -264,6 +276,9 @@ def main() -> int:
             {"unit_id": p["unit_id"], "reason_code": p["reason_code"]} for p in queue["terminal_pre_dispatch_failures"]
         ],
     })
+    if checkpoint["status"] == "queue_terminal" and not args.superseded_by:
+        checkpoint["next"] = ("Queue drained: every job is terminal. Rerun the listed pre-dispatch failures under a "
+                              "corrected plan; do not resume this queue.")
     if args.superseded_by:
         checkpoint["status"] = "superseded"
         checkpoint["superseded"] = {"by_plan": args.superseded_by, "by_plan_sha256": verified_sha(root / args.superseded_by),
