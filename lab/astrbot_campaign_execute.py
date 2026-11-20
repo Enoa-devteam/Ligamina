@@ -650,6 +650,14 @@ def _external_root(path: Path, repository_root: Path) -> Path:
     return resolved
 
 
+def selected_followups(jobs: list[dict[str, Any]], selection: list[dict[str, str]] | None) -> list[dict[str, Any]]:
+    """A patch run only follows up the selected commands of its backfilled inventories."""
+    if selection is None:
+        return jobs
+    wanted = {(item["registry_entry_id"], item["case_id"]) for item in selection}
+    return [job for job in jobs if (job["registry_entry_id"], job["case_id"]) in wanted]
+
+
 class AstrBotCampaignSpecFactory:
     """Prepare immutable external bundles and fenced WorkerSpecs for registered P7 jobs."""
 
@@ -908,6 +916,7 @@ class AstrBotCampaignSpecFactory:
                 max_scenarios=self.inputs["max_scenarios"],
             )
             jobs.extend(generated)
+        jobs = selected_followups(jobs, self.inputs.get("job_selection"))
         registration = queue.enqueue_jobs(run_id, jobs) if jobs else {"created": 0, "existing": 0}
         if registration["created"] and queue.run(run_id)["state"] == "completed":
             queue.resume_run(run_id)
@@ -989,6 +998,7 @@ def main(argv: list[str] | None = None) -> int:
             admission_sha256=_sha256(admission_bytes),
             native_runtime=native_runtime,
             max_scenarios=plan["inputs"]["max_scenarios"],
+            job_selection=plan["inputs"].get("job_selection"),
         )
         if (recomputed["run_id"] != plan.get("run_id")
                 or recomputed["manifest_sha256"] != plan.get("manifest_sha256")

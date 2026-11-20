@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import sys
 import threading
+import uuid
 import time
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
@@ -250,15 +251,14 @@ def download_wheels(
             )
             for argument in ("--label", f"{label}={resource_identity[key]}")
         ]
-    completed = subprocess.run(
-        ["docker", "run", "--rm", "--network", "host", *proxy_env,
-         *resource_labels,
-         "--user", f"{os.getuid()}:{os.getgid()}", "-e", "HOME=/tmp",
-         "-v", f"{bundle}:/bundle", DOWNLOAD_IMAGE,
-         "python", "-m", "pip", "download", "--disable-pip-version-check", "--only-binary=:all:",
-         "--dest", "/bundle/wheelhouse", "-r", "/bundle/requirements.txt", "-c", "/bundle/constraints.txt"],
-        capture_output=True, text=True, timeout=900, check=False,
-    )
+    # A named container: on timeout subprocess kills only the docker client, so the container must be
+    # removed explicitly (2026-11-17: an unlabelled download container outlived its timeout).
+    container = f"ligamina-dl-{uuid.uuid4().hex[:16]}"
+    try:
+        completed = _run_download(container, bundle, proxy_env, resource_labels)
+    except subprocess.TimeoutExpired:
+        subprocess.run(["docker", "rm", "-f", container], capture_output=True, text=True, timeout=60, check=False)
+        raise
     wheels = sorted(path for path in (bundle / "wheelhouse").glob("*") if path.is_file())
     return {
         "status": "resolved" if completed.returncode == 0 else "unresolvable",
@@ -266,6 +266,18 @@ def download_wheels(
         "wheels": {path.name: _sha256(path) for path in wheels},
         "error_tail": None if completed.returncode == 0 else (completed.stderr or completed.stdout)[-1500:],
     }
+
+
+def _run_download(container: str, bundle: Path, proxy_env: list[str], resource_labels: list[str]) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["docker", "run", "--rm", "--name", container, "--network", "host", *proxy_env,
+         *resource_labels,
+         "--user", f"{os.getuid()}:{os.getgid()}", "-e", "HOME=/tmp",
+         "-v", f"{bundle}:/bundle", DOWNLOAD_IMAGE,
+         "python", "-m", "pip", "download", "--disable-pip-version-check", "--only-binary=:all:",
+         "--dest", "/bundle/wheelhouse", "-r", "/bundle/requirements.txt", "-c", "/bundle/constraints.txt"],
+        capture_output=True, text=True, timeout=900, check=False,
+    )
 
 
 def prepare_bundle(bundle: Path, entry: dict[str, Any], cache_root: Path) -> dict[str, Any]:

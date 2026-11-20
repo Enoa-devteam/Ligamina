@@ -20,7 +20,7 @@ class AstrBotCampaignPlanTests(unittest.TestCase):
     @staticmethod
     def _plan(lock, census, lock_sha, report_char="c", *, admission_age_seconds=0,
               admission_hash_char="1", admitted_image=None, docker_server_version="29.1.3",
-              memory_available_bytes=16_000_000_000):
+              memory_available_bytes=16_000_000_000, mem_total_bytes=32_272_924_672, job_selection=None):
         worker_image = "ligamina-astrbot-tool-runtime@sha256:" + "d" * 64
         admission = {
             "status": "admitted", "platform": "linux",
@@ -28,7 +28,7 @@ class AstrBotCampaignPlanTests(unittest.TestCase):
             "capabilities": {"network_disabled": True, "cleanup_evidence_required": True},
             "facts": {
                 "image": {"locked_reference": admitted_image or worker_image},
-                "docker": {"server_version": docker_server_version},
+                "docker": {"server_version": docker_server_version, "mem_total_bytes": mem_total_bytes},
                 "resources": {"memory_available_bytes": memory_available_bytes},
             },
         }
@@ -40,7 +40,7 @@ class AstrBotCampaignPlanTests(unittest.TestCase):
         return plan_astrbot_command_campaign(
             lock, census, artifact_lock_sha256=lock_sha, census_report_sha256=_sha(report_char),
             worker_image=worker_image, admission=admission, admission_sha256=_sha(admission_hash_char),
-            native_runtime=native_runtime,
+            native_runtime=native_runtime, job_selection=job_selection,
         )
 
     def _fixture(self):
@@ -177,6 +177,45 @@ class AstrBotCampaignPlanTests(unittest.TestCase):
 
         self.assertNotEqual(first["inputs"]["campaign_sources_sha256"], second["inputs"]["campaign_sources_sha256"])
         self.assertNotEqual(first["run_id"], second["run_id"])
+
+    def test_plan_identity_ignores_sub_gib_memory_drift_after_a_wsl_restart(self) -> None:
+        # 2026-11-19: after a WSL restart Docker reported one more 4 KiB page, which changed the
+        # admission fingerprint and stopped both executors before they claimed a job.
+        lock, census, lock_sha, _ = self._fixture()
+        before = self._plan(lock, census, lock_sha, mem_total_bytes=32_272_924_672)
+        after_restart = self._plan(lock, census, lock_sha, mem_total_bytes=32_272_928_768)
+        resized = self._plan(lock, census, lock_sha, mem_total_bytes=36_567_891_968)
+
+        self.assertEqual(before["run_id"], after_restart["run_id"])
+        self.assertEqual(before["jobs"], after_restart["jobs"])
+        self.assertNotEqual(before["run_id"], resized["run_id"])
+
+    def test_job_selection_restricts_the_plan_and_keeps_job_inputs(self) -> None:
+        lock, census, lock_sha, _ = self._fixture()
+        full = self._plan(lock, census, lock_sha)
+        selected = self._plan(lock, census, lock_sha,
+                              job_selection=[{"registry_entry_id": "ab-01", "case_id": "echo"}])
+
+        self.assertEqual([job["unit_id"] for job in selected["jobs"]], [full["jobs"][0]["unit_id"]])
+        self.assertEqual(selected["jobs"][0], full["jobs"][0])
+        self.assertEqual(selected["inputs"]["job_selection"], [{"registry_entry_id": "ab-01", "case_id": "echo"}])
+        self.assertEqual(selected["counts"]["selected_jobs"], 1)
+        self.assertNotEqual(selected["run_id"], full["run_id"])
+        self.assertNotIn("job_selection", full["inputs"])
+
+    def test_job_selection_of_a_backfilled_entry_keeps_its_inventory_job(self) -> None:
+        lock, census, lock_sha, _ = self._fixture()
+        selected = self._plan(lock, census, lock_sha,
+                              job_selection=[{"registry_entry_id": "ab-02", "case_id": "later"}])
+        self.assertEqual([(job["stage"], job["registry_entry_id"]) for job in selected["jobs"]], [("inventory", "ab-02")])
+
+    def test_job_selection_rejects_pairs_the_plan_cannot_produce(self) -> None:
+        lock, census, lock_sha, _ = self._fixture()
+        for selection in ([{"registry_entry_id": "ab-01", "case_id": "missing"}],
+                          [{"registry_entry_id": "ab-03", "case_id": "echo"}],
+                          [{"registry_entry_id": "ab-01"}], []):
+            with self.subTest(selection=selection), self.assertRaises(ValueError):
+                self._plan(lock, census, lock_sha, job_selection=selection)
 
     def test_in_progress_census_cannot_be_dispatched(self) -> None:
         lock, census, lock_sha, _ = self._fixture()

@@ -79,6 +79,25 @@ def _digest(value: Any, label: str) -> str:
     return value
 
 
+def _whole_gib(value: Any) -> int | None:
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value // (1 << 30)
+    return None
+
+
+def _normalized_job_selection(selection: Any) -> list[dict[str, str]]:
+    """Validate a patch-run selection of (registry_entry_id, case_id) pairs."""
+    if not isinstance(selection, list) or not selection:
+        raise ValueError("job_selection must be a non-empty array")
+    pairs = set()
+    for index, item in enumerate(selection):
+        if (not isinstance(item, dict) or set(item) != {"registry_entry_id", "case_id"}
+                or not all(isinstance(item[key], str) and item[key] for key in item)):
+            raise ValueError(f"job_selection[{index}] must be an exact registry_entry_id/case_id pair")
+        pairs.add((item["registry_entry_id"], item["case_id"]))
+    return [{"registry_entry_id": entry, "case_id": case} for entry, case in sorted(pairs)]
+
+
 def _admission_environment_identity(admission: dict[str, Any], worker_image: str) -> dict[str, Any]:
     """Keep stable execution facts in the run key, excluding report timestamps and free resources."""
     facts = admission.get("facts", {}) if isinstance(admission.get("facts"), dict) else {}
@@ -97,10 +116,15 @@ def _admission_environment_identity(admission: dict[str, Any], worker_image: str
         "facts": {
             "backend": facts.get("backend"),
             "host": {key: host.get(key) for key in ("system", "release", "machine", "python")},
-            "docker": {key: docker.get(key) for key in (
-                "server_version", "operating_system", "architecture", "cgroup_version", "cgroup_driver",
-                "security_options", "mem_total_bytes", "n_cpu",
-            )},
+            "docker": {
+                **{key: docker.get(key) for key in (
+                    "server_version", "operating_system", "architecture", "cgroup_version", "cgroup_driver",
+                    "security_options", "n_cpu",
+                )},
+                # Whole GiB: a WSL restart can report a few more pages (2026-11-19: +4 KiB), which is not
+                # a different execution environment.
+                "mem_total_gib": _whole_gib(docker.get("mem_total_bytes")),
+            },
             "image": {key: image.get(key) for key in ("locked_reference", "lock_sha256", "image_id")},
             # Bind the admission thresholds, not transient free-memory and free-disk readings.
             "resource_requirements": {key: resources.get(key) for key in (
@@ -226,8 +250,12 @@ def plan_astrbot_command_campaign(
     admission_sha256: str,
     native_runtime: dict[str, str],
     max_scenarios: int = 16,
+    job_selection: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     """Validate a completed full census and derive deterministic inventory/diff jobs.
+
+    ``job_selection`` restricts the plan to exact (registry_entry_id, case_id) pairs for a patch
+    run. Job inputs are unchanged; the selection is recorded and becomes part of the run key.
 
     The report hash is provenance only. The incremental run key is derived from the
     frozen lock, closed census dispositions and generated command inputs, so identical
@@ -393,6 +421,20 @@ def plan_astrbot_command_campaign(
             max_scenarios=max_scenarios,
         )
         jobs.extend(differential_jobs)
+    selection = _normalized_job_selection(job_selection) if job_selection is not None else None
+    if selection is not None:
+        wanted = {(item["registry_entry_id"], item["case_id"]) for item in selection}
+        backfill_entries = {item["registry_entry_id"] for item in unresolved_inventory
+                            if item["reason_code"] == "runtime_descriptor_field_absent"}
+        planned_pairs = {(job["registry_entry_id"], job["case_id"]) for job in jobs if job["stage"] == "differential"}
+        impossible = sorted(pair for pair in wanted if pair not in planned_pairs and pair[0] not in backfill_entries)
+        if impossible:
+            raise ValueError(f"job_selection names pairs this plan cannot produce: {impossible[:3]}")
+        follow_up_entries = {entry for entry, case in wanted if (entry, case) not in planned_pairs}
+        jobs = [job for job in jobs
+                if (job["stage"] == "differential" and (job["registry_entry_id"], job["case_id"]) in wanted)
+                or (job["stage"] == "inventory" and job["registry_entry_id"] in follow_up_entries)]
+        totals["selected_jobs"] = len(jobs)
     jobs.sort(key=lambda item: (item["stage"], item["registry_entry_id"], item["unit_id"]))
     totals["differential_jobs"] = sum(job["stage"] == "differential" for job in jobs)
     campaign_sources = _campaign_source_identity()
@@ -411,6 +453,7 @@ def plan_astrbot_command_campaign(
         "dispositions": dispositions,
         "job_keys": [job["unit_id"] for job in jobs],
         "inventory_backfill": unresolved_inventory,
+        **({"job_selection": selection} if selection is not None else {}),
     }
     manifest_sha = _sha256(_canonical(key_material))
     return {
@@ -433,6 +476,7 @@ def plan_astrbot_command_campaign(
             "max_scenarios": max_scenarios,
             "campaign_sources_sha256": campaign_sources["sha256"],
             "campaign_sources": campaign_sources["files"],
+            **({"job_selection": selection} if selection is not None else {}),
         },
         "denominator": {
             "snapshot_entries": len(lock.get("entries", [])),
@@ -499,6 +543,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True, help="new plan report path; existing files are never overwritten")
     parser.add_argument("--queue-db", type=Path, help="optional external SQLite queue; registers jobs but never dispatches Workers")
     parser.add_argument("--max-scenarios", type=int, default=16)
+    parser.add_argument("--job-selection", type=Path,
+                        help="JSON array of {registry_entry_id, case_id} pairs; plans a patch run of only those jobs")
     options = parser.parse_args(argv)
 
     from lab.astrbot_native_tool_campaign import _runtime_archive_manifest
@@ -530,6 +576,8 @@ def main(argv: list[str] | None = None) -> int:
         admission_sha256=_sha256(admission_raw),
         native_runtime=native_runtime,
         max_scenarios=options.max_scenarios,
+        job_selection=(json.loads(options.job_selection.read_text(encoding="utf-8"))
+                       if options.job_selection is not None else None),
     )
     output = options.output.expanduser().absolute()
     sidecar = output.with_suffix(output.suffix + ".sha256")

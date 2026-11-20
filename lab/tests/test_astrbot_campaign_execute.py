@@ -13,6 +13,7 @@ from lab.astrbot_campaign_execute import (
     compare_astrbot_observations,
     execute_campaign_once,
     project_astrbot_contracts,
+    selected_followups,
 )
 from lab.astrbot_campaign_plan import differential_jobs_for_inventory
 from lab.automation.reconcile import ReconciliationResult
@@ -463,3 +464,12 @@ class _ContractFactory:
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PatchRunFollowupTests(unittest.TestCase):
+    def test_patch_run_only_follows_up_selected_commands(self) -> None:
+        jobs = [{"registry_entry_id": "ab-02", "case_id": case, "unit_id": case} for case in ("a", "b", "c")]
+        self.assertEqual(selected_followups(jobs, None), jobs)
+        chosen = selected_followups(jobs, [{"registry_entry_id": "ab-02", "case_id": "b"}])
+        self.assertEqual([job["case_id"] for job in chosen], ["b"])
+        self.assertEqual(selected_followups(jobs, [{"registry_entry_id": "ab-09", "case_id": "a"}]), [])
