@@ -10,8 +10,10 @@ const end = '<!-- ligamina:phase1:end -->';
 const phase2Start = '<!-- ligamina:phase2:start -->';
 const phase2End = '<!-- ligamina:phase2:end -->';
 const phase3Start = '<!-- ligamina:phase3:start -->';
-// Generated evidence blocks live in the Chinese README; README.md is the English primary.
-const README_FILE = 'README.zh-CN.md';
+// Generated evidence blocks live on the standalone acceptance page; READMEs only link to it.
+const EVIDENCE_FILE = 'docs/evidence/acceptance-results.md';
+const EVIDENCE_PREFIX = '../..';
+const rebaseEvidenceLinks = (block) => block.replace(/\]\((outputs|docs)\//g, `](${EVIDENCE_PREFIX}/$1/`);
 const phase3End = '<!-- ligamina:phase3:end -->';
 const auditPath = 'outputs/acceptance/t18-final-audit-20261012.json';
 const reports = [
@@ -540,14 +542,14 @@ export async function phase3Block() {
   ].join('\n');
 }
 
-export async function expectedReadme() {
-  const current = await readFile(path.join(root, README_FILE), 'utf8');
+export async function expectedEvidence() {
+  const current = await readFile(path.join(root, EVIDENCE_FILE), 'utf8');
   const replace = async (source, blockStart, blockEnd, render, label) => {
     if (source.split(blockStart).length !== 2 || source.split(blockEnd).length !== 2
         || source.indexOf(blockStart) > source.indexOf(blockEnd)) {
-      throw new Error(`${README_FILE} must contain exactly one ordered ${label} marker pair`);
+      throw new Error(`${EVIDENCE_FILE} must contain exactly one ordered ${label} marker pair`);
     }
-    return source.slice(0, source.indexOf(blockStart)) + await render()
+    return source.slice(0, source.indexOf(blockStart)) + rebaseEvidenceLinks(await render())
       + source.slice(source.indexOf(blockEnd) + blockEnd.length);
   };
   let expected = await replace(current, start, end, phase1Block, 'phase-one');
@@ -560,13 +562,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   try {
     const args = process.argv.slice(2);
     if (args.some((arg) => arg !== '--check')) throw new Error('Usage: node scripts/render-readme.mjs [--check]');
-    const { current, expected } = await expectedReadme();
+    const { current, expected } = await expectedEvidence();
     if (args.includes('--check')) {
-      if (current !== expected) throw new Error(`${README_FILE} evidence block is stale; run node scripts/render-readme.mjs`);
-      console.log('README evidence blocks match validated phase-one, phase-two, and phase-three reports.');
+      if (current !== expected) throw new Error(`${EVIDENCE_FILE} evidence block is stale; run node scripts/render-readme.mjs`);
+      console.log('Acceptance evidence blocks match validated phase-one, phase-two, and phase-three reports.');
     } else {
-      await writeFile(path.join(root, README_FILE), expected, 'utf8');
-      console.log('README evidence blocks rendered from phase-one, phase-two, and phase-three reports.');
+      await writeFile(path.join(root, EVIDENCE_FILE), expected, 'utf8');
+      console.log('Acceptance evidence blocks rendered from phase-one, phase-two, and phase-three reports.');
     }
   } catch (error) {
     console.error(error.message);

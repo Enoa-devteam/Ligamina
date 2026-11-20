@@ -1,6 +1,6 @@
 # 输出规范
 
-适用：CLI、lab、兼容性汇总和 README。S2-08 已将 v1 schemas、golden fixtures、旧状态映射和可复算 summary 接入 Python/Rust `report` CLI，并为 lab run 命令加入 JSON/text/NDJSON 摘要输出。
+适用：CLI、lab、兼容性汇总和验收结果页。S2-08 已将 v1 schemas、golden fixtures、旧状态映射和可复算 summary 接入 Python/Rust `report` CLI，并为 lab run 命令加入 JSON/text/NDJSON 摘要输出。
 
 ## 当前已实现
 
@@ -8,7 +8,7 @@
 - 现有 lab suite 有 completed、passed、failed、not_run、environment_missing 等格式差异。
 - [lab/report.py](../../lab/report.py) 对 v1 run 校验 schema、预期 ID、状态和计数；summary 必须能由 results 重算。旧 T13/T18 等报告仍保留兼容摘要路径，不伪装成 v1。
 - Rust `ligamina-cli report` 与 Python `python -m lab.report` 接受同一 v1 JSON，输出 JSON/text/NDJSON；默认 JSON。`lab.run --format` 输出 schema-versioned 的短命令摘要，完整证据继续保留在报告文件。
-- `node scripts/render-readme.mjs` 更新 T18/T13 与第二阶段的独立标记区；`--check` 验证源报告、固定快照身份、输入哈希和 README 漂移。文本证据保留原始 SHA-256；校验仅接受 UTF-8 文本的 LF/CRLF 等价字节，其他内容变更仍失败。部分运行及尚未派发会直接显示。
+- `node scripts/render-readme.mjs` 更新[验收结果](../evidence/acceptance-results.md)页中 T18/T13 与第二阶段的独立标记区；`--check` 验证源报告、固定快照身份、输入哈希和验收页漂移。文本证据保留原始 SHA-256；校验仅接受 UTF-8 文本的 LF/CRLF 等价字节，其他内容变更仍失败。部分运行及尚未派发会直接显示。
 
 ## 第二阶段 v1 格式（合同已实现）
 
@@ -55,9 +55,9 @@ v1 run 报告必须给出 `expected_result_ids`、`gate`、`gate_passed` 和 `ex
 
 退出码：0=所选 gate 达标；1=所选 gate 未达标；2=参数/schema/输入错误；3=run 因基础设施中断。`completion` 只看 run 是否结束且预期账目齐全；`automation` 允许已归因的插件失败，但不能有未解决的 harness/infrastructure 失败、unknown 或未调度项；`compatibility` 要求所有预期结果通过。`completed` 本身不让任何 gate 自动通过。
 
-### README 与完整报告
+### 验收结果页与完整报告
 
-README 展示日期、快照/profile、分母、L0–L5、失败/跳过/未知、行为支持数和范围。完整 per-plugin 矩阵、JSON/CSV、失败详情和复现命令放在报告 artifact 并链接。生成区从已接受报告更新，输入报告哈希变化时检查失败；partial、queued、stale 或尚未派发的批次必须标记，不能显示为完成或支持。
+[验收结果](../evidence/acceptance-results.md)页展示日期、快照/profile、分母、L0–L5、失败/跳过/未知、行为支持数和范围；根 README 只链接该页，不嵌入验收结果。完整 per-plugin 矩阵、JSON/CSV、失败详情和复现命令放在报告 artifact 并链接。生成区从已接受报告更新，输入报告哈希变化时检查失败；partial、queued、stale 或尚未派发的批次必须标记，不能显示为完成或支持。
 
 ## 第三阶段 automation manifest（P3-01）
 

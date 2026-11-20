@@ -2,6 +2,8 @@
 
 适用：查阅特定日期下的设计、执行和验收。当前状态见 [progress](../../progress.md) 与 [T18 最新裁决](../../outputs/acceptance/t18-final-audit-20261012.json)。旧 NOT READY、skipped 和中断结果保留原文。
 
+当前生成的能力声明与阶段验收摘要单独存放在[验收结果](acceptance-results.md)；本页保留历史证据索引与完整报告链接。
+
 ## 历史 Markdown
 
 - [outputs/2026-10-09-ligamina-discussion-decisions.md](../../outputs/2026-10-09-ligamina-discussion-decisions.md)

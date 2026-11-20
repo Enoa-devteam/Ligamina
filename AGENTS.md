@@ -29,7 +29,7 @@ Ligamina 是独立的插件联邦运行时与兼容性实验室：Rust Core + �
 | 修改 Core、Host、Client 或协议 | [架构与接口边界](docs/guides/architecture.md) |
 | 构建、测试、安装、CI 或运行诊断 | [开发与验证](docs/guides/development.md) |
 | 插件来源、全量扫描、差分测试或支持结论 | [兼容性实验](docs/guides/compatibility.md) |
-| CLI/实验报告输出或 README 结果展示 | [输出规范](docs/guides/reporting.md) |
+| CLI/实验报告输出或验收结果页展示 | [输出规范](docs/guides/reporting.md) |
 | 第二阶段实施与任务验收 | [第二阶段计划](docs/plans/2026-10-12-phase-2-full-catalog.md) |
 | 第三阶段自动化、补测与行为检测 | [第三阶段方案](docs/plans/2026-10-20-phase-3-automation.md)；实施前按任务表检查依赖和准入条件 |
 | 插件命令 MCP 工具面、命令发现、虚拟会话 tool sink（TOOL-01 已完成；下一项 TOOL-02 / feat-033） | [插件工具面计划](docs/plans/2026-11-07-plugin-tool-surface.md)、[ADR 0002](docs/adr/0002-plugins-as-tools.md)；不得为特定 bot 写专用 connector，bot 接入只走 MCP 或平台中立的事件/Gateway 合同 |

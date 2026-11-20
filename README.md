@@ -43,7 +43,7 @@ Core modules live in [crates/ligamina-core](https://github.com/Enoa-devteam/Liga
 
 ## Current Status
 
-Ligamina only claims capabilities backed by reproducible verification:
+Ligamina only claims capabilities backed by reproducible verification. Generated phase results and their detailed evidence are maintained separately in [Acceptance Results](docs/evidence/acceptance-results.md); the table below is a short status index.
 
 | Area | Status | Notes |
 | :--- | :--- | :--- |

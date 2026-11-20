@@ -6,7 +6,8 @@
 
 | 内容 | 维护位置 | 更新触发 |
 | --- | --- | --- |
-| 用户入口与结果摘要 | 根 README；证据表由脚本生成 | 功能或验收变更 |
+| 用户入口 | 根 README；只保留导航与当前用法 | 功能或入口变化 |
+| 结果摘要与能力声明 | [验收结果](../evidence/acceptance-results.md)；证据表由脚本生成 | 功能或验收变更 |
 | Agent 路由与硬约束 | AGENTS.md | 通用约束或任务路由变化 |
 | 当前行为与操作 | docs/guides/、模块 README | 相应实现/命令变化 |
 | 当前任务状态 | feature_list.json | 开始、阻塞、完成和验收 |
@@ -37,7 +38,7 @@
 
 1. 核对源码/配置/报告，明确当前事实、未来计划或历史证据。
 2. 修改权威位置，更新导航和需要的 feature status。
-3. 用 node scripts/render-readme.mjs 更新证据表。
+3. 用 node scripts/render-readme.mjs 更新[验收结果](../evidence/acceptance-results.md)页。
 4. 运行 node scripts/check-docs.mjs，检查链接、预算、索引、依赖图、done 证据和漂移。
 5. 运行 node .agents/skills/harness-creator/scripts/validate-harness.mjs --target .；分数只代表结构，不证明插件兼容或 agent 性能。
 6. 交接记录实际验证命令/输出和下一任务。文档整理不需重复 24 小时实验；运行时改动按开发指南验证。

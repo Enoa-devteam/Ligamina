@@ -1,6 +1,6 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { expectedReadme, root } from './render-readme.mjs';
+import { expectedEvidence, root } from './render-readme.mjs';
 
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
@@ -97,8 +97,8 @@ try {
   const lock = JSON.parse(await read('skills-lock.json'));
   assert(lock.skills?.['harness-creator']?.source === 'walkinglabs/learn-harness-engineering', 'Wrong skill source');
   assert(lock.skills?.['harness-creator']?.computedHash?.length === 64, 'Missing skill installation hash');
-  const { current, expected } = await expectedReadme();
-  assert(current === expected, 'README evidence blocks are stale');
+  const { current, expected } = await expectedEvidence();
+  assert(current === expected, 'Acceptance evidence page is stale');
   const summary = { status: failures.length ? 'failed' : 'passed', documents: docs.length, local_links: links,
     indexed_historical_markdown: historical.length, features: tracker.features.length, failures };
   console.log(JSON.stringify(summary, null, 2));
