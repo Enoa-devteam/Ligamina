@@ -1,0 +1,75 @@
+version: 2
+
+# Intentional exclusions:
+# - outputs/: frozen acceptance/representative lockfile snapshots must stay immutable.
+# - deploy/lab/linux/astrbot/requirements.lock.txt: exported from hosts/astrbot/uv.lock
+#   (updating hosts/astrbot via uv keeps the source lock canonical).
+# - Dockerfiles: deploy/linux pins base images to toolchain versions enforced by CI, and
+#   deploy/lab/linux layers on local-only digest-pinned images.
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: "npm"
+    directory: "/hosts/koishi"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+
+  - package-ecosystem: "npm"
+    directory: "/clients/reference"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+
+  - package-ecosystem: "uv"
+    directory: "/hosts/nonebot"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+
+  - package-ecosystem: "uv"
+    directory: "/hosts/astrbot"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: "uv"
+    directory: "/lab"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
